@@ -1,0 +1,41 @@
+{
+  "name": "ceevee",
+  "version": "0.0.0",
+  "description": "A simple resume-building application",
+  "repository": "https://github.com/randallmorey/ceevee.git",
+  "author": "Randall Morey <randall@randallmorey.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint app/**/*.js test/**/*.js",
+    "test": "npm run lint && NODE_ENV=test nyc mocha --require babel-core/register test/unit/**/*.js"
+  },
+  "dependencies": {
+    "mongoose": "^5.0.7"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.2",
+    "eslint": "^4.18.1",
+    "mocha": "^5.0.1",
+    "nyc": "^11.4.1"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "reporter": [
+      "lcov",
+      "text",
+      "text-summary"
+    ]
+  }
+}

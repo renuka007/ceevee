@@ -1,0 +1,22 @@
+version: '3'
+services:
+  mongodb:
+    image: 'mongo:3.0'
+    command: mongod
+    ports:
+      - 27017:27017
+  npm:
+    image: 'node:9'
+    entrypoint: npm
+    volumes:
+      - ./:/src
+    working_dir: /src
+  test:
+    image: 'node:9'
+    command: npm test
+    network_mode: host
+    depends_on:
+      - mongodb
+    volumes:
+       - ./:/src
+    working_dir: /src

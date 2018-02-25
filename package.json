@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint app/**/*.js test/**/*.js",
-    "test": "npm run lint && NODE_ENV=test nyc mocha --require babel-core/register test/unit/**/*.js"
+    "test": "npm run lint && NODE_ENV=test nyc mocha --require babel-core/register test/unit/**/*.js test/integration/**/*.js",
+    "test:local": "docker-compose run test"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",

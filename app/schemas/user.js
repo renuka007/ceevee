@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema;
-export default new Schema({
+export default new mongoose.Schema({
   email: {
     type: String,
     match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,

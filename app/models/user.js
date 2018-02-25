@@ -1,19 +1,28 @@
+import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import UserSchema from '../schemas/user';
 
-const Schema = mongoose.Schema;
-const UserSchema = new Schema({
-  email: {
-    type: String,
-    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  created_on: {
-    type: Date,
-    required: true,
-    default: Date.now
+class UserModel {
+  async comparePassword(candidatePassword) {
+    const hash = this.password_hash;
+  	return await this.constructor.comparePassword(candidatePassword, hash);
+  };
+  static async comparePassword(candidatePassword, hash) {
+    return await bcrypt.compare(candidatePassword, hash);
+  };
+  static async hashPassword(password) {
+    const saltWorkFactor = 5;
+    const salt = await bcrypt.genSalt(saltWorkFactor);
+    return await bcrypt.hash(password, salt);
+  };
+}
+
+UserSchema.loadClass(UserModel);
+
+UserSchema.pre('validate', async function () {
+  if (this.password) {
+    this.password_hash = await this.constructor.hashPassword(this.password);
+    this.password = undefined;
   }
 });
 

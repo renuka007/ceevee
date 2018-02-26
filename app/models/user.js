@@ -11,6 +11,23 @@ import UserSchema from '../schemas/user';
  *      information about ES6 class support in Mongoose.
  */
 class UserModel {
+
+  // =instance methods
+
+  /**
+   * Hashes the passed plaintext password and assigns it to
+   * the `password_hash` property.
+   * @param {string} password - a plaintext password
+   * @throws {Error} throws error if password is less than 8 characters long.
+   */
+  async setPassword(password) {
+    if (password && password.length >= 8) {
+      this.password_hash = await this.constructor.hashPassword(password);
+    } else {
+      throw new Error('minimum password length is 8');
+    }
+  };
+
   /**
    * Checks if the passed plaintext password matches this instance's
    * password hash.
@@ -23,11 +40,13 @@ class UserModel {
   	return await this.constructor.comparePassword(candidatePassword, hash);
   };
 
+  // =class methods
+
   /**
    * Checks if the passed plaintext password matches the passed password hash.
    * @param {string} candidatePassword - a plaintext password to check
    * @param {string} hash - a password hash
-   * @return {boolean} `true` if `candidatePassword`, once hashed,
+   * @return {boolean} `true` if `candidatePassword`, once hashed, matches
    *         the passed `hash`.
    */
   static async comparePassword(candidatePassword, hash) {
@@ -47,16 +66,5 @@ class UserModel {
 }
 
 UserSchema.loadClass(UserModel);
-
-/**
- * If `password` is set on the instance being validated, assigns a hash to
- * `password_hash` and unsets `password`.
- */
-UserSchema.pre('validate', async function () {
-  if (this.password) {
-    this.password_hash = await this.constructor.hashPassword(this.password);
-    this.password = undefined;
-  }
-});
 
 export default mongoose.model('User', UserSchema);

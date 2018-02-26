@@ -9,7 +9,6 @@ export default new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  password: {type: String, minlength: 8},
   password_hash: {type: String, required: true},
   created_on: {type: Date, required: true, default: Date.now}
 });

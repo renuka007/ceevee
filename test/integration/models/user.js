@@ -24,13 +24,15 @@ describe ('Integration: Model: User', () => {
     it('should not allow users with the same email address', async () => {
       const user1 = new User({email: 'test@test.com', password: 'test1234'});
       const user2 = new User({email: 'test@test.com', password: 'test1234'});
+      let err = undefined;
       await user1.save();
       try {
         await user2.save();
       } catch (e) {
-        assert.isDefined(e, 'user with the same email address cannot be saved');
-        assert.equal(user1.email, user2.email, 'user emails are duplicates');
+        err = e;
       }
+      assert.isDefined(err, 'user with the same email address cannot be saved');
+      assert.equal(user1.email, user2.email, 'user emails are duplicates');
       assert.ok(!user1.isNew, 'user 1 is saved');
       assert.notOk(!user2.isNew, 'user 2 is not saved');
     });

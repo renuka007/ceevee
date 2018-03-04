@@ -82,15 +82,6 @@ describe ('Unit: Model: User', () => {
     });
   });
 
-  describe('password_hash', () => {
-    it('should exist after successful validate', async () => {
-      const user = new User({email: 'test@test.com'});
-      await user.setPassword('test1234');
-      await user.validate();
-      assert.isString(user.password_hash, 'password_hash exists');
-    });
-  });
-
   describe('setPassword()', () => {
     it('should set the value of password_hash when valid', async () => {
       const password = 'test1234';

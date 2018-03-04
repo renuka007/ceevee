@@ -25,7 +25,7 @@ server.post('/users', async (req, res, next) => {
   } catch (e) {
     // error state
     // All errors result in the same response.  This helps to prevent
-    // inadvertantly leaking information about which email addresses already
+    // inadvertantly leaking information about which users already
     // exist in the database, although it is not foolproof.
     next(new UserNotCreatedError());
   }

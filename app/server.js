@@ -11,29 +11,24 @@ const UserNotCreatedError = makeConstructor('UserNotCreatedError', {
     statusCode: 422,
     message: 'User could not be created.'
 });
-server.post('/users', (req, res, next) => {
+server.post('/users', async (req, res, next) => {
   const {email, password} = (req.body || {});
   const user = new User({email});
-  user.setPassword(password).then((value) => {
-    user.save((err) => {
-      if (err) {
-        // error state
-        // All errors result in the same response.  This helps to prevent
-        // inadvertantly leaking information about which email addresses already
-        // exist in the database, although it is not foolproof.
-        next(new UserNotCreatedError());
-      } else {
-        // success state
-        res.send(201, {
-          email: user.email
-        });
-        next();
-      }
+  try {
+    await user.setPassword(password);
+    await user.save();
+    // success state
+    res.send(201, {
+      email: user.email
     });
-  }).catch(() => {
-    // password error state
+    next();
+  } catch (e) {
+    // error state
+    // All errors result in the same response.  This helps to prevent
+    // inadvertantly leaking information about which email addresses already
+    // exist in the database, although it is not foolproof.
     next(new UserNotCreatedError());
-  });
+  }
 });
 
 export default server;

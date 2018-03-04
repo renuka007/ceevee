@@ -20,3 +20,5 @@ services:
     volumes:
        - ./:/src
     working_dir: /src
+    environment:
+      DB_ENCRYPTION_SECRET: test1234

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import UserSchema from '../schemas/user';
+import encrypt from 'mongoose-encryption';
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -66,5 +67,10 @@ class UserModel {
 }
 
 UserSchema.loadClass(UserModel);
+UserSchema.plugin(encrypt, {
+  secret: process.env.DB_ENCRYPTION_SECRET,
+  excludeFromEncryption: ['email'],
+  additionalAuthenticatedFields: ['email']
+});
 
 export default mongoose.model('User', UserSchema);

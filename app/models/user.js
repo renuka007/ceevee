@@ -15,16 +15,14 @@ class UserModel {
   // =instance methods
 
   /**
-   * Hashes the passed plaintext password and assigns it to
-   * the `password_hash` property.
-   * @param {string} password - a plaintext password
-   * @throws {Error} throws error if password is less than 8 characters long.
+   * Hashes the plaintext password and assigns it to the
+   * `password_hash` property.
    */
-  async setPassword(password) {
-    if (password && password.length >= 8) {
+  async setPasswordHash() {
+    if (this.password) {
+      let password = this.password;
+      this.password = undefined;
       this.password_hash = await this.constructor.hashPassword(password);
-    } else {
-      throw new Error('minimum password length is 8');
     }
   };
 
@@ -66,5 +64,18 @@ class UserModel {
 }
 
 UserSchema.loadClass(UserModel);
+
+UserSchema.pre('validate', function () {
+  if (!this.password && !this.password_hash) {
+    throw new Error('Either password or password_hash required.');
+  }
+});
+
+/**
+ * Calls the instance's `setPasswordHash()` method before save.
+ */
+UserSchema.pre('save', async function () {
+  await this.setPasswordHash();
+});
 
 export default mongoose.model('User', UserSchema);

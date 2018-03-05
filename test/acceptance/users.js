@@ -36,6 +36,30 @@ describe('Acceptance: Route: /users', () => {
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
+    it('should disallow creation of a user when email is missing [422]', async () => {
+      assert.equal(await User.count(), 0, 'no users saved');
+      await supertest(server)
+        .post('/users')
+        .send({password: 'test1234'})
+        .expect(422)
+        .expect({
+          code: 'UserNotCreated',
+          message: 'User could not be created.'
+        });
+      assert.equal(await User.count(), 0, 'no users saved');
+    });
+    it('should disallow creation of a user when password is missing [422]', async () => {
+      assert.equal(await User.count(), 0, 'no users saved');
+      await supertest(server)
+        .post('/users')
+        .send({email: 'test@test.com'})
+        .expect(422)
+        .expect({
+          code: 'UserNotCreated',
+          message: 'User could not be created.'
+        });
+      assert.equal(await User.count(), 0, 'no users saved');
+    });
     it('should disallow creation of a user when email is invalid [422]', async () => {
       assert.equal(await User.count(), 0, 'no users saved');
       await supertest(server)

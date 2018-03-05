@@ -15,21 +15,14 @@ describe ('Integration: Model: User', () => {
 
   describe('email uniqueness', () => {
     it('should allow users with distinct email addresses', async () => {
-      const user1 = new User({email: 'test@test.com'});
-      const user2 = new User({email: 'foo@test.com'});
-      await user1.setPassword('test1234');
-      await user2.setPassword('test1234');
-      await user1.save();
-      await user2.save();
+      const user1 = await User.create({email: 'test@test.com', password: 'test1234'});
+      const user2 = await User.create({email: 'foo@test.com', password: 'test1234'});
       await assert.ok(!user1.isNew, 'users with different emails may be saved');
     });
     it('should not allow users with the same email address', async () => {
-      const user1 = new User({email: 'test@test.com'});
-      const user2 = new User({email: 'test@test.com'});
-      await user1.setPassword('test1234');
-      await user2.setPassword('test1234');
+      const user1 = await User.create({email: 'test@test.com', password: 'test1234'});
+      const user2 = new User({email: 'test@test.com', password: 'test1234'});
       let err = undefined;
-      await user1.save();
       try {
         await user2.save();
       } catch (e) {

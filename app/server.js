@@ -12,11 +12,9 @@ const UserNotCreatedError = makeConstructor('UserNotCreatedError', {
     message: 'User could not be created.'
 });
 server.post('/users', async (req, res, next) => {
-  const {email, password} = (req.body || {});
-  const user = new User({email});
   try {
-    await user.setPassword(password);
-    await user.save();
+    const {email, password} = req.body;
+    const user = await User.create({email, password});
     // success state
     res.send(201, {
       email: user.email

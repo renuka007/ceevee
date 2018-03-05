@@ -16,55 +16,30 @@ describe ('Unit: Model: User', () => {
       await user.validate();
       assert.ok(user, 'valid email and password produces no error');
     });
-    it('should fail on no values specified', async () => {
+    it('should fail on no values specified', () => {
       const user = new User();
-      let err = undefined;
-      try {
-        await user.validate();
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(err, 'user does not validate');
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
-    it('should fail on missing email', async () => {
+    it('should fail on missing email', () => {
       const user = new User({password: 'test1234'});
-      let err = undefined;
-      try {
-        await user.validate();
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(err, 'user does not validate');
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
-    it('should fail on missing password', async () => {
+    it('should fail on missing password', () => {
       const user = new User({email: 'test@test.com'});
-      let err = undefined;
-      try {
-        await user.validate();
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(err, 'user does not validate');
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
-    it('should fail on invalid email', async () => {
+    it('should fail on invalid email', () => {
       const user = new User({email: 'test@test', password: 'test1234'});
-      let err = undefined;
-      try {
-        await user.validate();
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(err, 'user does not validate');
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
-    it('should fail on invalid password', async () => {
+    it('should fail on invalid password', () => {
       const user = new User({email: 'test@test.com', password: 'short'});
-      let err = undefined;
-      try {
-        await user.validate();
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(err, 'user does not validate');
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
   });
 

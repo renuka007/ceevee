@@ -32,7 +32,8 @@ describe('Acceptance: Route: /users', () => {
         .expect(422)
         .expect({
           errors: {
-            base: ['UnprocessableEntity']
+            email: ['required'],
+            password: ['required']
           }
         });
       assert.equal(await User.count(), 0, 'no users saved');

@@ -5,7 +5,7 @@ import User from '../models/user';
  * returning only the email address in the response.
  */
 const usersPostRoute = async (req, res, next) => {
-  const {email, password} = req.body;
+  const {email, password} = (req.body || {});
   const user = await User.create({email, password});
   res.send(201, {
     email: user.email

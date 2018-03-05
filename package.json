@@ -14,7 +14,7 @@
   "dependencies": {
     "bcrypt": "^1.0.3",
     "mongoose": "^5.0.7",
-    "mongoose-encryption": "^1.5.0",
+    "mongoose-encryption": "git+https://github.com/scriptcoded/mongoose-encryption.git",
     "restify": "^6.3.4",
     "restify-errors": "^6.0.0"
   },

@@ -1,8 +1,8 @@
 import restify from 'restify';
-import asyncRoute from './helpers/async-route';
 import validationErrorHandler from './helpers/validation-error-handler';
 import restifyErrorHandler from './helpers/restify-error-handler';
-import User from './models/user';
+import asyncRoute from './helpers/async-route';
+import { usersPostRoute } from './routes/users'
 
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());
@@ -13,12 +13,6 @@ server.on('Validation', validationErrorHandler);
 server.on('restifyError', restifyErrorHandler);
 
 // /users
-server.post('/users', asyncRoute(async (req, res, next) => {
-  const {email, password} = req.body;
-  const user = await User.create({email, password});
-  res.send(201, {
-    email: user.email
-  });
-}));
+server.post('/users', asyncRoute(usersPostRoute));
 
 export default server;

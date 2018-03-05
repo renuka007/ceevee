@@ -20,6 +20,20 @@ server.on('Validation', (req, res, err, next) => {
   next();
 });
 
+// Format other errors consistently
+server.on('restifyError', (req, res, err, next) => {
+  if (err.body) {
+    err.toJSON = () => {
+      return {
+        errors: {
+          base: [err.body.code]
+        }
+      };
+    };
+  }
+  next();
+});
+
 // /users
 server.post('/users', async (req, res, next) => {
   try {

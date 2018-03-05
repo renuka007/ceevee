@@ -31,8 +31,9 @@ describe('Acceptance: Route: /users', () => {
         .post('/users')
         .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            base: ['UnprocessableEntity']
+          }
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
@@ -100,8 +101,9 @@ describe('Acceptance: Route: /users', () => {
         .send({email: 'test@test.com', password: 'test1234'})
         .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            base: ['UnprocessableEntity']
+          }
         });
       assert.equal(await User.count(), 1, 'one user saved');
     });

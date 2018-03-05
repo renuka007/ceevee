@@ -15,14 +15,11 @@ class UserModel {
   // =instance methods
 
   /**
-   * Hashes the plaintext password and assigns it to the
-   * `password_hash` property.
+   * Hashes the plaintext password into the same field.
    */
   async setPasswordHash() {
-    if (this.password) {
-      let password = this.password;
-      this.password = undefined;
-      this.password_hash = await this.constructor.hashPassword(password);
+    if (this.password && !this.password.match(/^\$/)) {
+      this.password = await this.constructor.hashPassword(this.password);
     }
   };
 
@@ -31,10 +28,10 @@ class UserModel {
    * password hash.
    * @param {string} candidatePassword - a plaintext password to check
    * @return {boolean} `true` if `candidatePassword`, once hashed, matches this
-   *         instance's `password_hash`.
+   *         instance's hashed `password`.
    */
   async comparePassword(candidatePassword) {
-    const hash = this.password_hash;
+    const hash = this.password;
   	return await this.constructor.comparePassword(candidatePassword, hash);
   };
 
@@ -64,12 +61,6 @@ class UserModel {
 }
 
 UserSchema.loadClass(UserModel);
-
-UserSchema.pre('validate', function () {
-  if (!this.password && !this.password_hash) {
-    throw new Error('Either password or password_hash required.');
-  }
-});
 
 /**
  * Calls the instance's `setPasswordHash()` method before save.

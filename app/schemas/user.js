@@ -9,7 +9,6 @@ export default new Schema({
     lowercase: true,
     trim: true
   },
-  password: {type: String, minlength: 8},
-  password_hash: {type: String},
+  password: {type: String, required: true, minlength: 8},
   created_on: {type: Date, required: true, default: Date.now}
 });

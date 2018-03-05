@@ -16,14 +16,6 @@ describe ('Unit: Model: User', () => {
       await user.validate();
       assert.ok(user, 'valid email and password produces no error');
     });
-    it('should pass on valid email and password_hash', async () => {
-      const user = new User({
-        email: 'test@test.com',
-        password_hash: 'fakehash'
-      });
-      await user.validate();
-      assert.ok(user, 'valid email and password_hash produces no error');
-    });
     it('should fail on no values specified', async () => {
       const user = new User();
       let err = undefined;
@@ -35,7 +27,7 @@ describe ('Unit: Model: User', () => {
       assert.isDefined(err, 'user does not validate');
     });
     it('should fail on missing email', async () => {
-      const user = new User({email: null, password_hash: 'fakehash'});
+      const user = new User({password: 'test1234'});
       let err = undefined;
       try {
         await user.validate();
@@ -44,7 +36,7 @@ describe ('Unit: Model: User', () => {
       }
       assert.isDefined(err, 'user does not validate');
     });
-    it('should fail on missing password and password_hash', async () => {
+    it('should fail on missing password', async () => {
       const user = new User({email: 'test@test.com'});
       let err = undefined;
       try {
@@ -55,7 +47,7 @@ describe ('Unit: Model: User', () => {
       assert.isDefined(err, 'user does not validate');
     });
     it('should fail on invalid email', async () => {
-      const user = new User({email: 'test@test', password_hash: 'fakehash'});
+      const user = new User({email: 'test@test', password: 'test1234'});
       let err = undefined;
       try {
         await user.validate();
@@ -77,52 +69,38 @@ describe ('Unit: Model: User', () => {
   });
 
   describe('setPasswordHash()', () => {
-    it('should set the value of password_hash and unset password', async () => {
+    it('should set the value of password to a hash', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
       assert.isDefined(user.password, 'password is set');
-      assert.isUndefined(user.password_hash, 'password_hash is not set');
       await user.setPasswordHash();
-      assert.isUndefined(user.password, 'password is not set');
-      assert.isDefined(user.password_hash, 'password_hash is set');
-      assert.notEqual(user.password, user.password_hash, 'password and password_hash are different');
+      assert.isDefined(user.password, 'password is set');
+      assert.notEqual(user.password, 'test1234', 'password is hashed');
+      assert.ok(user.password.match(/^\$/), 'password is hashed');
     });
-    it('should not set the value of password_hash if password is unset', async () => {
+    it('should not set the value of password if password is unset', async () => {
       const user = new User({email: 'test@test.com'});
       assert.isUndefined(user.password, 'password is not set');
-      assert.isUndefined(user.password_hash, 'password_hash is not set');
       await user.setPasswordHash();
-      assert.isUndefined(user.password_hash, 'password_hash is not set');
+      assert.isUndefined(user.password, 'password is not set');
     });
   });
 
   describe('comparePassword()', () => {
-    it('should match when password and password_hash match', async () => {
+    it('should match when password and hashed password match', async () => {
       const password = 'test1234';
       const user = new User({email: 'test@test.com', password: password});
       await user.setPasswordHash();
       const isMatch = await user.comparePassword('test1234');
       assert.equal(isMatch, true, 'passwords match');
     });
-    it('should not match when password and password_hash do not match', async () => {
+    it('should not match when password and hashed password do not match', async () => {
       const password = 'test1234';
       const user = new User({email: 'test@test.com', password: password});
       await user.setPasswordHash();
       const isMatch = await user.comparePassword('wrong');
       assert.equal(isMatch, false, 'passwords do not match');
     });
-    it('should fail if password is set and password_hash is not set', async () => {
-      const user = new User({email: 'test@test.com', password: 'foo'});
-      let err = undefined;
-      try {
-        await user.comparePassword('wrong');
-      } catch (e) {
-        err = e;
-      }
-      assert.isDefined(user.password, 'password is set');
-      assert.isUndefined(user.password_hash, 'password_hash is not set');
-      assert.isDefined(err, 'comparePassword() threw an error');
-    });
-    it('should fail if both password and password_hash are not set', async () => {
+    it('should fail if password is not set', async () => {
       const user = new User({email: 'test@test.com'});
       let err = undefined;
       try {
@@ -131,7 +109,6 @@ describe ('Unit: Model: User', () => {
         err = e;
       }
       assert.isUndefined(user.password, 'password is not set');
-      assert.isUndefined(user.password_hash, 'password_hash is not set');
       assert.isDefined(err, 'comparePassword() threw an error');
     });
   });

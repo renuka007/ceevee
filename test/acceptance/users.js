@@ -41,10 +41,11 @@ describe('Acceptance: Route: /users', () => {
       await supertest(server)
         .post('/users')
         .send({password: 'test1234'})
-        //.expect(422)
+        .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            email: ['required']
+          }
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
@@ -55,8 +56,9 @@ describe('Acceptance: Route: /users', () => {
         .send({email: 'test@test.com'})
         .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            password: ['required']
+          }
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
@@ -67,8 +69,9 @@ describe('Acceptance: Route: /users', () => {
         .send({email: 'test@test.', password: 'test1234'})
         .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            email: ['regexp']
+          }
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
@@ -79,8 +82,9 @@ describe('Acceptance: Route: /users', () => {
         .send({email: 'test@test.com', password: 'short'})
         .expect(422)
         .expect({
-          code: 'UnprocessableEntity',
-          message: ''
+          errors: {
+            password: ['minlength']
+          }
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });

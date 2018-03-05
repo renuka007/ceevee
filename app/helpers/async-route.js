@@ -1,5 +1,10 @@
 import { UnprocessableEntityError } from 'restify-errors';
 
+/**
+ * Wraps an promise-based route handler, making it compatible with restify's
+ * expected callback pattern.  Errors occurring within the wrapped promise
+ * are caught and passed via restify's `next(err)` pattern.
+ */
 export default fn => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch((e) => {
     if (e.name === 'ValidationError') {

@@ -1,5 +1,8 @@
 import { Schema } from 'mongoose';
 
+/**
+ * A UserSchema for Mongoose.
+ */
 export default new Schema({
   email: {
     type: String,

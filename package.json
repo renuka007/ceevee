@@ -15,7 +15,8 @@
     "bcrypt": "^1.0.3",
     "mongoose": "^5.0.7",
     "restify": "^6.3.4",
-    "restify-errors": "^6.0.0"
+    "restify-errors": "^6.0.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -42,6 +43,8 @@
       "text",
       "text-summary"
     ],
-    "exclude": ["config/**/*.js"]
+    "exclude": [
+      "config/**/*.js"
+    ]
   }
 }

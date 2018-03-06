@@ -22,3 +22,4 @@ services:
     working_dir: /src
     environment:
       SALT_WORK_FACTOR: 1
+      MIN_ZXCVBN_PASSWORD_STRENGTH: 1

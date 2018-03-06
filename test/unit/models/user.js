@@ -36,8 +36,14 @@ describe ('Unit: Model: User', () => {
       const err = user.validateSync();
       assert.equal(err.name, 'ValidationError', 'user does not validate');
     });
-    it('should fail on invalid password', () => {
+    it('should fail on weak password', () => {
       const user = new User({email: 'test@test.com', password: 'short'});
+      const err = user.validateSync();
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
+    });
+    it('should fail when password equals email', () => {
+      const email = 'test@test.com';
+      const user = new User({email: email, password: email});
       const err = user.validateSync();
       assert.equal(err.name, 'ValidationError', 'user does not validate');
     });

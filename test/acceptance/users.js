@@ -77,7 +77,7 @@ describe('Acceptance: Route: /users', () => {
         });
       assert.equal(await User.count(), 0, 'no users saved');
     });
-    it('should disallow creation of a user when password is invalid [422]', async () => {
+    it('should disallow creation of a user when password is weak [422]', async () => {
       assert.equal(await User.count(), 0, 'no users saved');
       await supertest(server)
         .post('/users')
@@ -85,7 +85,7 @@ describe('Acceptance: Route: /users', () => {
         .expect(422)
         .expect({
           errors: {
-            password: ['minlength']
+            password: ['strength']
           }
         });
       assert.equal(await User.count(), 0, 'no users saved');

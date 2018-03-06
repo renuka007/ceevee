@@ -112,4 +112,17 @@ describe ('Unit: Model: User', () => {
       assert.notEqual(password, hash, 'hash is not equal to password');
     });
   });
+
+  describe('static isHash()', () => {
+    it('should return false for non-hashes', () => {
+      const isHash = User.isHash('test1234');
+      assert.isFalse(isHash);
+    });
+    it('should return true for hashes', async () => {
+      const hash = await User.hashPassword('test1234');
+      const isHash = User.isHash(hash);
+      console.log(hash, isHash);
+      assert.isTrue(isHash);
+    });
+  });
 });

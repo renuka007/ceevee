@@ -19,7 +19,7 @@ class UserModel {
    * Hashes the plaintext password into the same field.
    */
   async setPasswordHash() {
-    if (this.password && !this.password.match(/^\$/)) {
+    if (this.password && !this.constructor.isHash(this.password)) {
       this.password = await this.constructor.hashPassword(this.password);
     }
   };
@@ -57,6 +57,20 @@ class UserModel {
   static async hashPassword(password) {
     const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
     return await bcrypt.hash(password, salt);
+  };
+
+  /**
+   * Returns true if the passed value is a hash, false otherwise.
+   * @param {string} candidateHash - a value that may or may not be a hash
+   * @return {boolean}
+   */
+  static isHash(candidateHash) {
+    let isHash = false;
+    try {
+      bcrypt.getRounds(candidateHash);
+      isHash = true;
+    } catch (e) {}
+    return isHash;
   };
 }
 

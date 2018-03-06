@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint app/**/*.js test/**/*.js",
+    "lint": "eslint config/**/*.js app/**/*.js test/**/*.js",
     "test": "npm run lint && NODE_ENV=test nyc mocha --require babel-core/register test/unit/**/*.js test/integration/**/*.js test/acceptance/**/*.js",
     "test:local": "docker-compose run test"
   },
@@ -41,6 +41,7 @@
       "lcov",
       "text",
       "text-summary"
-    ]
+    ],
+    "exclude": ["config/**/*.js"]
   }
 }

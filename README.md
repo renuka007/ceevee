@@ -46,6 +46,8 @@ The following environment variables are used by the application.  Default values
 are used when a variable is not set.
 
 - `SALT_WORK_FACTOR` (default: `10`):  strength of [bcrypt][bcrypt] hashes
+- `MIN_ZXCVBN_PASSWORD_STRENGTH` (default: `2`) minimum zxcvbn strength score
+  for password validation
 
 
 [docker]: https://www.docker.com

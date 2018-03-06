@@ -121,7 +121,6 @@ describe ('Unit: Model: User', () => {
     it('should return true for hashes', async () => {
       const hash = await User.hashPassword('test1234');
       const isHash = User.isHash(hash);
-      console.log(hash, isHash);
       assert.isTrue(isHash);
     });
   });

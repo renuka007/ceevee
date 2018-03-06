@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import UserSchema from '../schemas/user';
+import { SALT_WORK_FACTOR } from '../../config/config'
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -54,8 +55,7 @@ class UserModel {
    * @return {string} a password hash
    */
   static async hashPassword(password) {
-    const saltWorkFactor = 5;
-    const salt = await bcrypt.genSalt(saltWorkFactor);
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
     return await bcrypt.hash(password, salt);
   };
 }

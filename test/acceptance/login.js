@@ -49,6 +49,7 @@ describe('Acceptance: Route: /auth/login', () => {
         .expect((response) => {
           const decoded = jwt.verify(response.body.token, JWT_SECRET);
           assert.equal(decoded.sub, user.email);
+          assert.isTrue(decoded.authenticated);
         });
     });
     it('should fail when email does not exist [401]', async () => {

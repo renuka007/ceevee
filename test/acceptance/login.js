@@ -1,10 +1,13 @@
 import { assert } from 'chai';
 import supertest from 'supertest';
+import jwt from 'jsonwebtoken';
 
 import server from '../../app/server';
 import User from '../../app/models/user';
 
 import DatabaseHelper from '../helpers/database-helper';
+
+import { JWT_SECRET } from '../../config/config'
 
 
 let user = null;
@@ -43,7 +46,10 @@ describe('Acceptance: Route: /auth/login', () => {
         .set('Authorization', basicAuthHeader)
         .send()
         .expect(200)
-        .expect({}); // TODO expect an actual JWT
+        .expect((response) => {
+          const decoded = jwt.verify(response.body.token, JWT_SECRET);
+          assert.equal(decoded.sub, user.email);
+        });
     });
     it('should fail when email does not exist [401]', async () => {
       await supertest(server)

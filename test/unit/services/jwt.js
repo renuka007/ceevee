@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import jwt from 'jsonwebtoken';
-import { jwtLoginToken, isAuthenticated } from '../../../app/services/jwt';
+import { jwtLoginToken } from '../../../app/services/jwt';
 import { JWT_SECRET } from '../../../config/config';
 
 describe ('Unit: Service: jwt', () => {

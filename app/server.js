@@ -3,9 +3,9 @@ import passport from 'passport';
 
 import basicAuthStrategy from './auth-strategies/basic';
 
-import validationErrorHandler from './helpers/validation-error-handler';
-import restifyErrorHandler from './helpers/restify-error-handler';
-import asyncRoute from './helpers/async-route';
+import validationErrorHandler from './route-helpers/validation-error-handler';
+import restifyErrorHandler from './route-helpers/restify-error-handler';
+import asyncRoute from './route-helpers/async-route';
 
 import { usersPostRoute } from './routes/users'
 

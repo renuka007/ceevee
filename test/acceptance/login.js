@@ -52,7 +52,14 @@ describe('Acceptance: Route: /auth/login', () => {
           assert.isTrue(decoded.authenticated);
         });
     });
-    it('should fail when email does not exist [401]', async () => {
+    it('should fail when token is invalid [400]', async () => {
+      await supertest(server)
+        .get('/auth/login')
+        .set('Authorization', 'invalidtoken')
+        .send()
+        .expect(400);
+    });
+    it('should fail when user does not exist [401]', async () => {
       await supertest(server)
         .get('/auth/login')
         .set('Authorization', basicAuthNonExistentHeader)

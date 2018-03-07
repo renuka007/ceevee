@@ -17,6 +17,7 @@
     "mongoose": "^5.0.7",
     "passport": "^0.4.0",
     "passport-http": "^0.3.0",
+    "passport-http-bearer": "^1.0.1",
     "restify": "^6.3.4",
     "restify-errors": "^6.0.0",
     "zxcvbn": "^4.4.2"

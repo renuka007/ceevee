@@ -49,7 +49,7 @@ are used when a variable is not set.
 - `MIN_ZXCVBN_PASSWORD_STRENGTH` (default: `2`):  minimum zxcvbn strength score
   for password validation
 - `JWT_SECRET`:  the secret key used to sign JSON web tokens
-- `JWT_EXPIRES_IN` (default: `7d`):  time from _now_ when JSON web tokens
+- `JWT_LOGIN_EXPIRES_IN` (default: `7d`):  time from _now_ when login tokens
   expire, expressed in [zeit/ms][zeit/ms]
 
 

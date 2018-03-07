@@ -24,4 +24,4 @@ services:
       SALT_WORK_FACTOR: 1
       MIN_ZXCVBN_PASSWORD_STRENGTH: 1
       JWT_SECRET: insecurejwtsecret
-      JWT_EXPIRES_IN: 30s
+      JWT_LOGIN_EXPIRES_IN: 30s

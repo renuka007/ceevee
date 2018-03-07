@@ -69,8 +69,8 @@ describe('Acceptance: Route: /auth/ping', () => {
         .expect(401);
     });
     it('should fail when payload does not assert `authenticated: true` [401]', async () => {
-      const expiredToken = jwtLoginToken(user.email, false);
-      const bearerAuthHeader = `Bearer ${expiredToken}`;
+      const unauthenticatedToken = jwtLoginToken(user.email, false);
+      const bearerAuthHeader = `Bearer ${unauthenticatedToken}`;
       await supertest(server)
         .get('/auth/ping')
         .set('Authorization', bearerAuthHeader)

@@ -59,6 +59,12 @@ describe('Acceptance: Route: /auth/login', () => {
         .send()
         .expect(400);
     });
+    it('should fail when no token is passed [401]', async () => {
+      await supertest(server)
+        .get('/auth/login')
+        .send()
+        .expect(401);
+    });
     it('should fail when user does not exist [401]', async () => {
       await supertest(server)
         .get('/auth/login')

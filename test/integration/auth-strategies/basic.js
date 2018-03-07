@@ -58,7 +58,7 @@ describe ('Integration: Auth Strategy: Basic', () => {
         })
         .authenticate();
     });
-    it('should return UnauthorizedError when invalid token is passed', (done) => {
+    it('should fail with 400 when an invalid token is passed', (done) => {
       chai.passport.use(basicAuthStrategy)
         .fail(function (status) {
           assert.equal(status, 400);
@@ -66,6 +66,14 @@ describe ('Integration: Auth Strategy: Basic', () => {
         })
         .req(function (req) {
           req.headers.authorization = 'invalidtoken';
+        })
+        .authenticate();
+    });
+    it('should fail when no token is passed', (done) => {
+      chai.passport.use(basicAuthStrategy)
+        .fail(function (status) {
+          assert.ok(status);
+          done();
         })
         .authenticate();
     });

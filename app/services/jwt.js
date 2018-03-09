@@ -13,7 +13,7 @@ import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config';
 const jwtLoginToken = (subject, authenticated=true, expiresIn=JWT_LOGIN_EXPIRES_IN) => jwt.sign({
   authenticated: authenticated
 }, JWT_SECRET, {
-  algorithm: 'HS256',
+  algorithm: 'HS512',
   expiresIn: expiresIn,
   subject: subject
 });

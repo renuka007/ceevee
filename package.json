@@ -7,11 +7,13 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
+    "start": "babel-node index.js",
     "lint": "eslint config/**/*.js app/**/*.js test/**/*.js",
     "test": "npm run lint && NODE_ENV=test nyc mocha --require babel-core/register test/unit/**/*.js test/integration/**/*.js test/acceptance/**/*.js",
     "test:local": "docker-compose run test"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "bcrypt": "^1.0.3",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.7",

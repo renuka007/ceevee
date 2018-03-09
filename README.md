@@ -40,11 +40,23 @@ npm run test:local
 Tests require 100% coverage.  Tests will fail if coverage falls below 100%.
 
 
+## Local Testing
+
+Run a local instance of the API server with:
+
+```
+docker-compose up local
+```
+
+
 ## Environment Variables
 
 The following environment variables are used by the application.  Default values
 are used when a variable is not set.
 
+- `PORT`:  port number on which API server should listen
+- `MONGODB_URL`:  URL of the MongoDB instance to which to connect
+- `SERVER_NAME` (default: `Server`):  name of the API server (appears in logs)
 - `SALT_WORK_FACTOR` (default: `10`):  strength of [bcrypt][bcrypt] hashes
 - `MIN_ZXCVBN_PASSWORD_STRENGTH` (default: `2`):  minimum zxcvbn strength score
   for password validation

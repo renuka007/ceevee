@@ -14,14 +14,28 @@ services:
   test:
     image: 'node:9'
     command: npm test
-    network_mode: host
     depends_on:
       - mongodb
     volumes:
        - ./:/src
     working_dir: /src
     environment:
+      MONGODB_URL: mongodb://mongodb/test
       SALT_WORK_FACTOR: 1
       MIN_ZXCVBN_PASSWORD_STRENGTH: 1
       JWT_SECRET: insecurejwtsecret
       JWT_LOGIN_EXPIRES_IN: 30s
+  local:
+    image: 'node:9'
+    command: npm start
+    depends_on:
+      - mongodb
+    volumes:
+       - ./:/src
+    working_dir: /src
+    ports:
+      - 5000:5000
+    environment:
+      PORT: 5000
+      MONGODB_URL: mongodb://mongodb/ceevee
+      JWT_SECRET: insecurejwtsecret

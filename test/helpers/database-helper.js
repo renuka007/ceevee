@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 export default class DatabaseHelper {
   static async connect(done) {
-    await mongoose.connect('mongodb://localhost/test');
+    await mongoose.connect(process.env.MONGODB_URL);
   };
 
   static async disconnect() {

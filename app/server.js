@@ -9,10 +9,11 @@ import restifyErrorHandler from './route-helpers/restify-error-handler';
 import asyncRoute from './route-helpers/async-route';
 
 import { usersPostRoute } from './routes/users'
+import { SERVER_NAME } from '../config/config'
 
 
 // Create server
-const server = restify.createServer();
+const server = restify.createServer({name: SERVER_NAME});
 server.use(restify.plugins.bodyParser());
 // Setup auth
 passport.use(basicAuthStrategy);

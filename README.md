@@ -55,7 +55,7 @@ The following environment variables are used by the application.  Default values
 are used when a variable is not set.
 
 - `PORT`:  port number on which API server should listen
-- `MONGODB_URL`:  URL of the MongoDB instance to which to connect
+- `MONGODB_URI`:  URL of the MongoDB instance to which to connect
 - `SERVER_NAME` (default: `Server`):  name of the API server (appears in logs)
 - `SALT_WORK_FACTOR` (default: `10`):  strength of [bcrypt][bcrypt] hashes
 - `MIN_ZXCVBN_PASSWORD_STRENGTH` (default: `2`):  minimum zxcvbn strength score

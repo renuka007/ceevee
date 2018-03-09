@@ -4,7 +4,7 @@
  * 10 in production is recommended.  A lower number may be used for testing.
  */
 const PORT = process.env.PORT;
-const MONGODB_URL = process.env.MONGODB_URL;
+const MONGODB_URI = process.env.MONGODB_URI;
 const SERVER_NAME = process.env.SERVER_NAME || 'Server';
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR || '10', 10);
 const MIN_ZXCVBN_PASSWORD_STRENGTH =
@@ -14,7 +14,7 @@ const JWT_LOGIN_EXPIRES_IN = process.env.JWT_LOGIN_EXPIRES_IN || '7d';
 
 export {
   PORT,
-  MONGODB_URL,
+  MONGODB_URI,
   SERVER_NAME,
   SALT_WORK_FACTOR,
   MIN_ZXCVBN_PASSWORD_STRENGTH,

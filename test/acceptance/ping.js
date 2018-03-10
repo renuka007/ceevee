@@ -4,11 +4,10 @@ import jwt from 'jsonwebtoken';
 
 import server from '../../app/server';
 import User from '../../app/models/user';
-import { jwtLoginToken } from '../../app/services/jwt';
 
 import DatabaseHelper from '../helpers/database-helper';
 
-import { JWT_SECRET } from '../../config/config'
+import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
 
 
 let user = null;
@@ -28,7 +27,7 @@ describe('Acceptance: Route: /auth/ping', () => {
 
   describe('GET', () => {
     it('should acknowledge authentication if token is valid [200]', async () => {
-      const token = jwtLoginToken(user.email);
+      const token = user.issueJWTAuthenticationToken();
       const bearerAuthHeader = `Bearer ${token}`;
       await supertest(server)
         .get('/auth/ping')
@@ -51,7 +50,13 @@ describe('Acceptance: Route: /auth/ping', () => {
         .expect(401);
     });
     it('should fail when token is expired [401]', async () => {
-      const expiredToken = jwtLoginToken(user.email, true, '-1d');
+      const expiredToken = jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '-1d',
+        subject: user.email
+      });
       const bearerAuthHeader = `Bearer ${expiredToken}`;
       await supertest(server)
         .get('/auth/ping')
@@ -60,7 +65,13 @@ describe('Acceptance: Route: /auth/ping', () => {
         .expect(401);
     });
     it('should fail when subject does not exist [401]', async () => {
-      const token = jwtLoginToken('nosuch@email.com');
+      const token = jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        subject: 'nosuch@email.com'
+      });
       const bearerAuthHeader = `Bearer ${token}`;
       await supertest(server)
         .get('/auth/ping')
@@ -69,7 +80,13 @@ describe('Acceptance: Route: /auth/ping', () => {
         .expect(401);
     });
     it('should fail when payload does not assert `authenticated: true` [401]', async () => {
-      const unauthenticatedToken = jwtLoginToken(user.email, false);
+      const unauthenticatedToken = jwt.sign({
+        authenticated: false
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        subject: user.email
+      });
       const bearerAuthHeader = `Bearer ${unauthenticatedToken}`;
       await supertest(server)
         .get('/auth/ping')

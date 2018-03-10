@@ -1,5 +1,9 @@
 import { assert } from 'chai';
+import jwt from 'jsonwebtoken';
+
 import User from '../../../app/models/user';
+import { JWT_SECRET } from '../../../config/config'
+
 
 describe ('Unit: Model: User', () => {
 
@@ -91,6 +95,16 @@ describe ('Unit: Model: User', () => {
       }
       assert.isUndefined(user.password, 'password is not set');
       assert.isDefined(err, 'comparePassword() threw an error');
+    });
+  });
+
+  describe('issueJWTAuthenticationToken()', () => {
+    it('should return a JWT claiming the user is authenticated', () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueJWTAuthenticationToken();
+      const decoded = jwt.verify(token, JWT_SECRET);
+      assert.equal(decoded.sub, 'test@test.com');
+      assert.isTrue(decoded.authenticated);
     });
   });
 

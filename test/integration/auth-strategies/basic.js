@@ -45,10 +45,10 @@ describe ('Integration: Auth Strategy: Basic', () => {
   });
 
   describe('strategy', () => {
-    it('should return a JSON web token', (done) => {
+    it('should return an authentication claim JWT', (done) => {
       chai.passport.use(basicAuthStrategy)
         .success(function (response) {
-          const decoded = jwt.verify(response.token, JWT_SECRET);
+          const decoded = jwt.verify(response, JWT_SECRET);
           assert.equal(decoded.sub, user.email);
           assert.isTrue(decoded.authenticated);
           done();

@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import UserSchema from '../schemas/user';
-import { SALT_WORK_FACTOR } from '../../config/config'
+import { SALT_WORK_FACTOR, JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -34,6 +35,20 @@ class UserModel {
   async comparePassword(candidatePassword) {
     const hash = this.password;
   	return await this.constructor.comparePassword(candidatePassword, hash);
+  };
+
+  /**
+   * Creates an authentication claim JWT for the user.
+   * @returns {string} a JSON web token
+   */
+  issueJWTAuthenticationToken() {
+    return jwt.sign({
+      authenticated: true
+    }, JWT_SECRET, {
+      algorithm: 'HS512',
+      expiresIn: JWT_LOGIN_EXPIRES_IN,
+      subject: this.email
+    });
   };
 
   // =class methods

@@ -95,6 +95,24 @@ class UserModel {
     } catch (e) {}
     return isHash;
   };
+
+  /**
+   * Returns a user matching the authentication token, if the claim is valid.
+   * @param {jwtToken} jwtToken - a token claiming an authenticated user
+   * @return {UserModel|null}
+   */
+  static async findOneAuthenticated(jwtToken) {
+    try {
+      // Inside try since `jwt.verify` throws an exception if token is expired,
+      // invalid, or undefined.
+      // Semantically, no authenticated user is found under these circumstances,
+      // so we don't want the error to propagate.  Instead, we just return null.
+      const decoded = jwt.verify(jwtToken, JWT_SECRET);
+      const isAuthenticated = decoded.authenticated;
+      if (isAuthenticated) return await this.findOne({email: decoded.sub});
+    } catch (e) { }
+    return null;
+  };
 }
 
 UserSchema.loadClass(UserModel);

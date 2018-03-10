@@ -1,6 +1,9 @@
 import { assert } from 'chai';
+import jwt from 'jsonwebtoken';
+
 import User from '../../../app/models/user';
 import DatabaseHelper from '../../helpers/database-helper';
+import { JWT_SECRET } from '../../../config/config';
 
 
 const userData = {email: 'test@test.com', password: 'test1234'};
@@ -35,6 +38,55 @@ describe ('Integration: Model: User', () => {
       assert.equal(user1.email, user2.email, 'user emails are duplicates');
       assert.ok(!user1.isNew, 'user 1 is saved');
       assert.notOk(!user2.isNew, 'user 2 is not saved');
+    });
+  });
+
+  describe('findOneAuthenticated()', () => {
+    it('should return a matching user if the authentication claim token is valid', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: user.email
+      });
+      const foundUser = await User.findOneAuthenticated(validToken);
+      assert.equal(foundUser.email, userData.email, 'user was found');
+    });
+    it('should return null if no matching email is found', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'nosuch@email.com'
+      });
+      const foundUser = await User.findOneAuthenticated(validToken);
+      assert.isNull(foundUser);
+    });
+    it('should return null if authenticated is false', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        authenticated: false
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: user.email
+      });
+      const foundUser = await User.findOneAuthenticated(validToken);
+      assert.isNull(foundUser);
+    });
+    it('should return null if token is invalid', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneAuthenticated('invalid token');
+      assert.isNull(foundUser);
+    });
+    it('should return null if no token is passed', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneAuthenticated();
+      assert.isNull(foundUser);
     });
   });
 

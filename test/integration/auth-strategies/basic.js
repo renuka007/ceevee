@@ -11,7 +11,7 @@ import basicAuthStrategy from '../../../app/auth-strategies/basic';
 
 import DatabaseHelper from '../../helpers/database-helper';
 
-import { JWT_SECRET } from '../../../config/config'
+import { JWT_SECRET } from '../../../config/config';
 
 
 chai.use(passportTest);

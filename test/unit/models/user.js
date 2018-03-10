@@ -87,24 +87,31 @@ describe ('Unit: Model: User', () => {
     });
     it('should fail if password is not set', async () => {
       const user = new User({email: 'test@test.com'});
-      let err = undefined;
-      try {
-        await user.comparePassword('wrong');
-      } catch (e) {
-        err = e;
-      }
-      assert.isUndefined(user.password, 'password is not set');
-      assert.isDefined(err, 'comparePassword() threw an error');
+      const isMatch = await user.comparePassword('wrong');
+      assert.equal(isMatch, false, 'passwords do not match');
     });
   });
 
   describe('issueJWTAuthenticationToken()', () => {
-    it('should return a JWT claiming the user is authenticated', () => {
-      const user = new User({email: 'test@test.com'});
-      const token = user.issueJWTAuthenticationToken();
+    it('should return a JWT claiming the user is authenticated if password is a match', async () => {
+      const user = new User({email: 'test@test.com', password: 'test1234'});
+      await user.setPasswordHash();
+      const token = await user.issueJWTAuthenticationToken('test1234');
       const decoded = jwt.verify(token, JWT_SECRET);
       assert.equal(decoded.sub, 'test@test.com');
       assert.isTrue(decoded.authenticated);
+    });
+    it('should return undefined if password is not a match', async () => {
+      const user = new User({email: 'test@test.com', password: 'test1234'});
+      await user.setPasswordHash();
+      const token = await user.issueJWTAuthenticationToken('wrong');
+      assert.isUndefined(token);
+    });
+    it('should return undefined if no password is passed', async () => {
+      const user = new User({email: 'test@test.com', password: 'test1234'});
+      await user.setPasswordHash();
+      const token = await user.issueJWTAuthenticationToken();
+      assert.isUndefined(token);
     });
   });
 
@@ -119,6 +126,24 @@ describe ('Unit: Model: User', () => {
       const password = 'test1234';
       const hash = await User.hashPassword(password);
       const isMatch = await User.comparePassword('wrong', hash);
+      assert.equal(isMatch, false, 'passwords do not match');
+    });
+    it('should return false when no arguments passed', async () => {
+      const password = 'test1234';
+      const hash = await User.hashPassword(password);
+      const isMatch = await User.comparePassword();
+      assert.equal(isMatch, false, 'passwords do not match');
+    });
+    it('should return false when password is undefined', async () => {
+      const password = 'test1234';
+      const hash = await User.hashPassword(password);
+      const isMatch = await User.comparePassword(undefined, hash);
+      assert.equal(isMatch, false, 'passwords do not match');
+    });
+    it('should return false when hash is undefined', async () => {
+      const password = 'test1234';
+      const hash = await User.hashPassword(password);
+      const isMatch = await User.comparePassword(password);
       assert.equal(isMatch, false, 'passwords do not match');
     });
   });

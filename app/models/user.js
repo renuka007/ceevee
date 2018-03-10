@@ -34,21 +34,26 @@ class UserModel {
    */
   async comparePassword(candidatePassword) {
     const hash = this.password;
-  	return await this.constructor.comparePassword(candidatePassword, hash);
+    return await this.constructor.comparePassword(candidatePassword, hash);
   };
 
   /**
-   * Creates an authentication claim JWT for the user.
-   * @returns {string} a JSON web token
+   * Creates an authentication claim JWT for this user if the passed password is
+   * a match according to `comparePassword()`.
+   * @param {string} password - a plaintext password to check
+   * @returns {string|undefined} a JWT asserting the authentication claim of
+   *  this user; undefined if password is wrong
    */
-  issueJWTAuthenticationToken() {
-    return jwt.sign({
-      authenticated: true
-    }, JWT_SECRET, {
-      algorithm: 'HS512',
-      expiresIn: JWT_LOGIN_EXPIRES_IN,
-      subject: this.email
-    });
+  async issueJWTAuthenticationToken(password) {
+    if (await this.comparePassword(password)) {
+      return jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        subject: this.email
+      });
+    }
   };
 
   // =class methods
@@ -58,10 +63,13 @@ class UserModel {
    * @param {string} candidatePassword - a plaintext password to check
    * @param {string} hash - a password hash
    * @return {boolean} `true` if `candidatePassword`, once hashed, matches
-   *         the passed `hash`.
+   *         the passed `hash`; `false` otherwise
    */
   static async comparePassword(candidatePassword, hash) {
-    return await bcrypt.compare(candidatePassword, hash);
+    if (candidatePassword && hash) {
+      return await bcrypt.compare(candidatePassword, hash);
+    }
+    return false;
   };
 
   /**
@@ -86,18 +94,6 @@ class UserModel {
       isHash = true;
     } catch (e) {}
     return isHash;
-  };
-
-  /**
-   * Returns a user with the given email if the provided password matches.
-   * @param {string} email - an email
-   * @param {string} password - password to compare against user
-   * @return {UserModel}
-   */
-  static async findOneWithPassword(email, password) {
-    const user = password ? await this.findOne({email: email}) : null;
-    const isMatch = user ? await user.comparePassword(password) : false;
-    if (isMatch) return user;
   };
 }
 

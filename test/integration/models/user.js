@@ -38,36 +38,4 @@ describe ('Integration: Model: User', () => {
     });
   });
 
-  describe('static findOneWithPassword()', () => {
-    it('should return a user if user exists and password is valid', async () => {
-      const user = await User.create(userData);
-      const foundUser =
-        await User.findOneWithPassword(userData.email, userData.password);
-      assert.instanceOf(foundUser, User);
-    });
-    it('should return undefined if user does not exist', async () => {
-      const foundUser =
-        await User.findOneWithPassword(userData.email, userData.password);
-      assert.isUndefined(foundUser);
-    });
-    it('should return undefined if email is not passed', async () => {
-      const user = await User.create(userData);
-      const foundUser =
-        await User.findOneWithPassword(undefined, userData.password);
-      assert.isUndefined(foundUser);
-    });
-    it('should return undefined if password does not match', async () => {
-      const user = await User.create(userData);
-      const foundUser =
-        await User.findOneWithPassword(userData.email, 'wrong');
-      assert.isUndefined(foundUser);
-    });
-    it('should undefined if no password is passed', async () => {
-      const user = await User.create(userData);
-      const foundUser =
-        await User.findOneWithPassword(userData.email);
-      assert.isUndefined(foundUser);
-    });
-  });
-
 });

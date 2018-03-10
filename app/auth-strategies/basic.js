@@ -8,14 +8,10 @@ import User from '../models/user';
  * Successful authentication issues a JSON web token.
  */
 export default new BasicStrategy(async (email, password, next) => {
-  // get user and check if password is correct
-  const user = await User.findOneWithPassword(email, password);
-  if (user) {
-    // email and password are valid
-    // issue the JWT authentication token
-    return next(null, user.issueJWTAuthenticationToken());
-  } else {
-    // return unauthorized if password is incorrect
-    return next(new UnauthorizedError());
+  const user = await User.findOne({email});
+  const token = user ? await user.issueJWTAuthenticationToken(password) : null;
+  if (user && token) {
+    return next(null, token);
   }
+  return next(new UnauthorizedError());
 });

@@ -72,6 +72,18 @@ class UserModel {
     } catch (e) {}
     return isHash;
   };
+
+  /**
+   * Returns a user with the given email if the provided password matches.
+   * @param {string} email - an email
+   * @param {string} password - password to compare against user
+   * @return {UserModel}
+   */
+  static async findOneWithPassword(email, password) {
+    const user = password ? await this.findOne({email: email}) : null;
+    const isMatch = user ? await user.comparePassword(password) : false;
+    if (isMatch) return user;
+  };
 }
 
 UserSchema.loadClass(UserModel);

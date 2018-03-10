@@ -41,6 +41,15 @@ describe ('Integration: Model: User', () => {
     });
   });
 
+  describe('issueJWTAuthenticationToken() should issue tokens the work with findOneAuthenticated()', () => {
+    it('should return a matching user if the authentication claim token is valid', async () => {
+      const user = await User.create(userData);
+      const token = await user.issueJWTAuthenticationToken(userData.password);
+      const foundUser = await User.findOneAuthenticated(token);
+      assert.equal(foundUser.email, user.email, 'user was found');
+    });
+  });
+
   describe('findOneAuthenticated()', () => {
     it('should return a matching user if the authentication claim token is valid', async () => {
       const user = await User.create(userData);

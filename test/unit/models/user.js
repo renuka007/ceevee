@@ -92,11 +92,11 @@ describe ('Unit: Model: User', () => {
     });
   });
 
-  describe('issueJWTAuthenticationToken()', () => {
+  describe('issueAuthenticationToken()', () => {
     it('should return a JWT claiming the user is authenticated if password is a match', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
       await user.setPasswordHash();
-      const token = await user.issueJWTAuthenticationToken('test1234');
+      const token = await user.issueAuthenticationToken('test1234');
       const decoded = jwt.verify(token, JWT_SECRET);
       assert.equal(decoded.sub, 'test@test.com');
       assert.isTrue(decoded.authenticated);
@@ -104,13 +104,13 @@ describe ('Unit: Model: User', () => {
     it('should return undefined if password is not a match', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
       await user.setPasswordHash();
-      const token = await user.issueJWTAuthenticationToken('wrong');
+      const token = await user.issueAuthenticationToken('wrong');
       assert.isUndefined(token);
     });
     it('should return undefined if no password is passed', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
       await user.setPasswordHash();
-      const token = await user.issueJWTAuthenticationToken();
+      const token = await user.issueAuthenticationToken();
       assert.isUndefined(token);
     });
   });

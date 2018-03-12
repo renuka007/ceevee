@@ -27,7 +27,7 @@ describe('Acceptance: Route: /auth/ping', () => {
 
   describe('GET', () => {
     it('should acknowledge authentication if token is valid [200]', async () => {
-      const token = await user.issueJWTAuthenticationToken(userData.password);
+      const token = await user.issueAuthenticationToken(userData.password);
       const bearerAuthHeader = `Bearer ${token}`;
       await supertest(server)
         .get('/auth/ping')

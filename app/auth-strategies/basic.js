@@ -9,7 +9,7 @@ import User from '../models/user';
  */
 export default new BasicStrategy(async (email, password, next) => {
   const user = await User.findOne({email});
-  const token = user ? await user.issueJWTAuthenticationToken(password) : null;
+  const token = user ? await user.issueAuthenticationToken(password) : null;
   if (token) {
     return next(null, token);
   }

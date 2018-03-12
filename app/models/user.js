@@ -44,7 +44,7 @@ class UserModel {
    * @returns {string|undefined} a JWT asserting the authentication claim of
    *  this user; undefined if password is wrong
    */
-  async issueJWTAuthenticationToken(password) {
+  async issueAuthenticationToken(password) {
     if (await this.comparePassword(password)) {
       return jwt.sign({
         authenticated: true

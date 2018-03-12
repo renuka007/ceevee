@@ -160,6 +160,16 @@ class UserModel {
     const email = this.verifyAuthenticationToken(jwtToken);
     return await this.findOne({email});
   };
+
+  /**
+   * Returns a user matching the activation token, if the claim is valid.
+   * @param {jwtToken} jwtToken - a token claiming activation for a user
+   * @return {UserModel|null}
+   */
+  static async findOneActivation(jwtToken) {
+    const email = this.verifyActivationToken(jwtToken);
+    return await this.findOne({email});
+  };
 }
 
 UserSchema.loadClass(UserModel);

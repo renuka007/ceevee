@@ -90,4 +90,53 @@ describe ('Integration: Model: User', () => {
     });
   });
 
+  describe('findOneActivation()', () => {
+    it('should return a matching user if the activation claim token is valid', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        activate: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: user.email
+      });
+      const foundUser = await User.findOneActivation(validToken);
+      assert.equal(foundUser.email, userData.email, 'user was found');
+    });
+    it('should return null if no matching email is found', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        activate: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'nosuch@email.com'
+      });
+      const foundUser = await User.findOneActivation(validToken);
+      assert.isNull(foundUser);
+    });
+    it('should return null if activation is false', async () => {
+      const user = await User.create(userData);
+      const validToken = jwt.sign({
+        activate: false
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: user.email
+      });
+      const foundUser = await User.findOneActivation(validToken);
+      assert.isNull(foundUser);
+    });
+    it('should return null if token is invalid', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneActivation('invalid token');
+      assert.isNull(foundUser);
+    });
+    it('should return null if no token is passed', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneActivation();
+      assert.isNull(foundUser);
+    });
+  });
+
 });

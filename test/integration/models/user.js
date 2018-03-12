@@ -41,6 +41,30 @@ describe ('Integration: Model: User', () => {
     });
   });
 
+  describe('activate()', () => {
+    it('should set `active` to `true` and save', async () => {
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234'
+      });
+      assert.isFalse(user.active);
+      await user.activate();
+      const foundUser = await User.findOne({email: userData.email});
+      assert.isTrue(foundUser.active);
+    });
+    it('should pass even if user is already activated', async () => {
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234',
+        active: true
+      });
+      assert.isTrue(user.active);
+      await user.activate();
+      const foundUser = await User.findOne({email: userData.email});
+      assert.isTrue(foundUser.active);
+    });
+  });
+
   describe('findOneAuthenticated()', () => {
     it('should return a matching user if the authentication claim token is valid', async () => {
       const user = await User.create(userData);
@@ -90,9 +114,12 @@ describe ('Integration: Model: User', () => {
     });
   });
 
-  describe('findOneActivation()', () => {
-    it('should return a matching user if the activation claim token is valid', async () => {
-      const user = await User.create(userData);
+  describe('findOneAndActivate()', () => {
+    it('should activate and return a matching user if the activation claim token is valid', async () => {
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234'
+      });
       const validToken = jwt.sign({
         activate: true
       }, JWT_SECRET, {
@@ -100,8 +127,10 @@ describe ('Integration: Model: User', () => {
         expiresIn: '10s',
         subject: user.email
       });
-      const foundUser = await User.findOneActivation(validToken);
+      assert.isFalse(user.active);
+      const foundUser = await User.findOneAndActivate(validToken);
       assert.equal(foundUser.email, userData.email, 'user was found');
+      assert.isTrue(foundUser.active);
     });
     it('should return null if no matching email is found', async () => {
       const user = await User.create(userData);
@@ -112,7 +141,7 @@ describe ('Integration: Model: User', () => {
         expiresIn: '10s',
         subject: 'nosuch@email.com'
       });
-      const foundUser = await User.findOneActivation(validToken);
+      const foundUser = await User.findOneAndActivate(validToken);
       assert.isNull(foundUser);
     });
     it('should return null if activation is false', async () => {
@@ -124,17 +153,17 @@ describe ('Integration: Model: User', () => {
         expiresIn: '10s',
         subject: user.email
       });
-      const foundUser = await User.findOneActivation(validToken);
+      const foundUser = await User.findOneAndActivate(validToken);
       assert.isNull(foundUser);
     });
     it('should return null if token is invalid', async () => {
       const user = await User.create(userData);
-      const foundUser = await User.findOneActivation('invalid token');
+      const foundUser = await User.findOneAndActivate('invalid token');
       assert.isNull(foundUser);
     });
     it('should return null if no token is passed', async () => {
       const user = await User.create(userData);
-      const foundUser = await User.findOneActivation();
+      const foundUser = await User.findOneAndActivate();
       assert.isNull(foundUser);
     });
   });

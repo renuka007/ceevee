@@ -11,7 +11,7 @@ import { JWT_SECRET } from '../../config/config';
  * Checks that the activation token is valid and that the token subject exists.
  */
 const jwtActivationAuthStrategy = new BearerStrategy(async (token, next) => {
-  const user = await User.findOneActivation(token);
+  const user = await User.findOneAndActivate(token);
   if (user) {
     return next(null, user);
   }

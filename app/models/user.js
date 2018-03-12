@@ -21,6 +21,16 @@ class UserModel {
   // =instance methods
 
   /**
+   * Updates `active` to `true` in the DB.  While this action seems trivial, the
+   * meaning of "activation" is intentionally encapsulated within the user model
+   * so that it can easily change if necessary.
+   */
+  async activate() {
+    this.set({active: true});
+    await this.save();
+  };
+
+  /**
    * Hashes the plaintext password into the same field.
    */
   async setPasswordHash() {
@@ -162,13 +172,19 @@ class UserModel {
   };
 
   /**
-   * Returns a user matching the activation token, if the claim is valid.
+   * Finds a user matching the activation claim, if valid, activates the user,
+   * and returns the user instance.
    * @param {jwtToken} jwtToken - a token claiming activation for a user
    * @return {UserModel|null}
    */
-  static async findOneActivation(jwtToken) {
+  static async findOneAndActivate(jwtToken) {
     const email = this.verifyActivationToken(jwtToken);
-    return await this.findOne({email});
+    const user = await this.findOne({email});
+    if (user) {
+      await user.activate();
+      return user;
+    }
+    return null;
   };
 }
 

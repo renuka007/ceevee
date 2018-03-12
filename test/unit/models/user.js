@@ -169,4 +169,37 @@ describe ('Unit: Model: User', () => {
       assert.isTrue(isHash);
     });
   });
+
+  describe('static verifyAuthenticationToken()', () => {
+    it('should return the email from the token if the authentication claim is valid', async () => {
+      const validToken = jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyAuthenticationToken(validToken);
+      assert.equal(email, 'test@test.com', 'email returned');
+    });
+    it('should return null if authenticated is false', async () => {
+      const token = jwt.sign({
+        authenticated: false
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyAuthenticationToken(token);
+      assert.isNull(email, 'no email returned');
+    });
+    it('should return null if token is invalid', async () => {
+      const email = User.verifyAuthenticationToken('invalid token');
+      assert.isNull(email, 'no email returned');
+    });
+    it('should return null if no token is passed', async () => {
+      const email = User.verifyAuthenticationToken();
+      assert.isNull(email, 'no email returned');
+    });
+  });
 });

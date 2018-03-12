@@ -97,11 +97,11 @@ class UserModel {
   };
 
   /**
-   * Returns a user matching the authentication token, if the claim is valid.
+   * Returns the email from the token, if the authentication claim is valid.
    * @param {jwtToken} jwtToken - a token claiming an authenticated user
-   * @return {UserModel|null}
+   * @return {string|null}
    */
-  static async findOneAuthenticated(jwtToken) {
+  static verifyAuthenticationToken(jwtToken) {
     try {
       // Inside try since `jwt.verify` throws an exception if token is expired,
       // invalid, or undefined.
@@ -109,9 +109,19 @@ class UserModel {
       // so we don't want the error to propagate.  Instead, we just return null.
       const decoded = jwt.verify(jwtToken, JWT_SECRET);
       const isAuthenticated = decoded.authenticated;
-      if (isAuthenticated) return await this.findOne({email: decoded.sub});
+      if (isAuthenticated) return decoded.sub;
     } catch (e) { }
     return null;
+  };
+
+  /**
+   * Returns a user matching the authentication token, if the claim is valid.
+   * @param {jwtToken} jwtToken - a token claiming an authenticated user
+   * @return {UserModel|null}
+   */
+  static async findOneAuthenticated(jwtToken) {
+    const email = this.verifyAuthenticationToken(jwtToken);
+    return await this.findOne({email});
   };
 }
 

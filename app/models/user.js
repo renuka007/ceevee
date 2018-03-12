@@ -2,7 +2,11 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import UserSchema from '../schemas/user';
-import { SALT_WORK_FACTOR, JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
+import {
+  SALT_WORK_FACTOR,
+  JWT_SECRET,
+  JWT_LOGIN_EXPIRES_IN,
+  JWT_ACTIVATION_EXPIRES_IN } from '../../config/config';
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -54,6 +58,21 @@ class UserModel {
         subject: this.email
       });
     }
+  };
+
+  /**
+   * Creates an activation claim JWT for this user.
+   * @returns {string|undefined} a JWT asserting the activation claim of
+   *  this user; undefined if password is wrong
+   */
+  issueActivationToken() {
+    return jwt.sign({
+      activate: true
+    }, JWT_SECRET, {
+      algorithm: 'HS512',
+      expiresIn: JWT_ACTIVATION_EXPIRES_IN,
+      subject: this.email
+    });
   };
 
   // =class methods
@@ -110,6 +129,24 @@ class UserModel {
       const decoded = jwt.verify(jwtToken, JWT_SECRET);
       const isAuthenticated = decoded.authenticated;
       if (isAuthenticated) return decoded.sub;
+    } catch (e) { }
+    return null;
+  };
+
+  /**
+   * Returns the email from the token, if the activation claim is valid.
+   * @param {jwtToken} jwtToken - a token claiming a user may activate
+   * @return {string|null}
+   */
+  static verifyActivationToken(jwtToken) {
+    try {
+      // Inside try since `jwt.verify` throws an exception if token is expired,
+      // invalid, or undefined.
+      // Semantically, no user is found under these circumstances,
+      // so we don't want the error to propagate.  Instead, we just return null.
+      const decoded = jwt.verify(jwtToken, JWT_SECRET);
+      const activationAllowed = decoded.activate;
+      if (activationAllowed) return decoded.sub;
     } catch (e) { }
     return null;
   };

@@ -63,6 +63,8 @@ are used when a variable is not set.
 - `JWT_SECRET`:  the secret key used to sign JSON web tokens
 - `JWT_LOGIN_EXPIRES_IN` (default: `7d`):  time from _now_ when login tokens
   expire, expressed in [zeit/ms][zeit/ms]
+- `JWT_ACTIVATION_EXPIRES_IN` (default: `1d`):  time from _now_ when activation
+  tokens expire, expressed in [zeit/ms][zeit/ms]
 
 
 [docker]: https://www.docker.com

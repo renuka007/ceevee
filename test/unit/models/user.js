@@ -119,6 +119,25 @@ describe ('Unit: Model: User', () => {
     });
   });
 
+  describe('issueActivationToken()', () => {
+    it('should return a JWT claiming the user may activate', () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueActivationToken();
+      const decoded = jwt.verify(token, JWT_SECRET);
+      assert.equal(decoded.sub, 'test@test.com');
+      assert.isTrue(decoded.activate);
+    });
+  });
+
+  describe('issueActivationToken() should issue tokens that work with verifyActivationToken()', () => {
+    it('should should produce valid activation tokens', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = await user.issueActivationToken();
+      const email = await User.verifyActivationToken(token);
+      assert.equal(email, user.email, 'email was properly extracted');
+    });
+  });
+
   describe('static comparePassword()', () => {
     it('should return true when password and hash match', async () => {
       const password = 'test1234';
@@ -203,6 +222,39 @@ describe ('Unit: Model: User', () => {
     });
     it('should return null if no token is passed', async () => {
       const email = User.verifyAuthenticationToken();
+      assert.isNull(email, 'no email returned');
+    });
+  });
+
+  describe('static verifyActivationToken()', () => {
+    it('should return the email from the token if the activation claim is valid', async () => {
+      const validToken = jwt.sign({
+        activate: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyActivationToken(validToken);
+      assert.equal(email, 'test@test.com', 'email returned');
+    });
+    it('should return null if activate is false', async () => {
+      const token = jwt.sign({
+        activate: false
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyActivationToken(token);
+      assert.isNull(email, 'no email returned');
+    });
+    it('should return null if token is invalid', async () => {
+      const email = User.verifyActivationToken('invalid token');
+      assert.isNull(email, 'no email returned');
+    });
+    it('should return null if no token is passed', async () => {
+      const email = User.verifyActivationToken();
       assert.isNull(email, 'no email returned');
     });
   });

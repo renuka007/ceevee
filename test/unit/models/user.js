@@ -119,6 +119,16 @@ describe ('Unit: Model: User', () => {
     });
   });
 
+  describe('issueAuthenticationToken() should issue tokens the work with verifyAuthenticationToken()', () => {
+    it('should return a matching user if the authentication claim token is valid', async () => {
+      const user = User({email: 'test@test.com', password: 'password1234'});
+      await user.setPasswordHash();
+      const token = await user.issueAuthenticationToken('password1234');
+      const email = User.verifyAuthenticationToken(token);
+      assert.equal(email, user.email, 'user was found');
+    });
+  });
+
   describe('issueActivationToken()', () => {
     it('should return a JWT claiming the user may activate', () => {
       const user = new User({email: 'test@test.com'});

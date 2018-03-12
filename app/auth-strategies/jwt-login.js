@@ -13,7 +13,7 @@ import { JWT_SECRET } from '../../config/config';
 const jwtLoginAuthStrategy = new BearerStrategy(async (token, next) => {
   const user = await User.findOneAuthenticated(token);
   if (user) {
-    return next(null, {email: user.email});
+    return next(null, user);
   }
   return next(new UnauthorizedError());
 });

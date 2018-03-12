@@ -38,7 +38,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     it('should return email if token is valid', (done) => {
       chai.passport.use(jwtLoginAuthStrategy)
         .success((response) => {
-          assert.deepEqual(response, {email: 'test@test.com'});
+          assert.deepEqual(response.email, 'test@test.com');
           done();
         })
         .req((req) => {

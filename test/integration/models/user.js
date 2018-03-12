@@ -168,4 +168,29 @@ describe ('Integration: Model: User', () => {
     });
   });
 
+  describe('findOneActiveByEmail()', () => {
+    it('should return a matching active user', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneActiveByEmail(user.email);
+      assert.equal(foundUser.email, userData.email, 'user was found');
+    });
+    it('should return null if an otherwise matching user is inactive', async () => {
+      const user = await User.create(userData);
+      user.set({active: false});
+      await user.save();
+      const foundUser = await User.findOneActiveByEmail(user.email);
+      assert.isNull(foundUser);
+    });
+    it('should return null if no matching user is found', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneActiveByEmail('nosuch@email.com');
+      assert.isNull(foundUser);
+    });
+    it('should return null if no email is passed', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneActiveByEmail();
+      assert.isNull(foundUser);
+    });
+  });
+
 });

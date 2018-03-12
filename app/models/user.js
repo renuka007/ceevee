@@ -127,7 +127,7 @@ class UserModel {
 
   /**
    * Returns the email from the token, if the authentication claim is valid.
-   * @param {jwtToken} jwtToken - a token claiming an authenticated user
+   * @param {string} jwtToken - a token claiming an authenticated user
    * @return {string|null}
    */
   static verifyAuthenticationToken(jwtToken) {
@@ -145,7 +145,7 @@ class UserModel {
 
   /**
    * Returns the email from the token, if the activation claim is valid.
-   * @param {jwtToken} jwtToken - a token claiming a user may activate
+   * @param {string} jwtToken - a token claiming a user may activate
    * @return {string|null}
    */
   static verifyActivationToken(jwtToken) {
@@ -163,7 +163,7 @@ class UserModel {
 
   /**
    * Returns a user matching the authentication token, if the claim is valid.
-   * @param {jwtToken} jwtToken - a token claiming an authenticated user
+   * @param {string} jwtToken - a token claiming an authenticated user
    * @return {UserModel|null}
    */
   static async findOneAuthenticated(jwtToken) {
@@ -174,7 +174,7 @@ class UserModel {
   /**
    * Finds a user matching the activation claim, if valid, activates the user,
    * and returns the user instance.
-   * @param {jwtToken} jwtToken - a token claiming activation for a user
+   * @param {string} jwtToken - a token claiming activation for a user
    * @return {UserModel|null}
    */
   static async findOneAndActivate(jwtToken) {
@@ -185,6 +185,15 @@ class UserModel {
       return user;
     }
     return null;
+  };
+
+  /**
+   * Returns an active user.
+   * @param {string} email - a user email
+   * @return {UserModel|null}
+   */
+  static async findOneActiveByEmail(email) {
+    return await this.findOne({email, active: true});
   };
 }
 

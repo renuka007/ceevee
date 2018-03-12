@@ -6,7 +6,7 @@ import DatabaseHelper from '../../helpers/database-helper';
 import { JWT_SECRET } from '../../../config/config';
 
 
-const userData = {email: 'test@test.com', password: 'test1234'};
+const userData = {email: 'test@test.com', password: 'test1234', active: true};
 
 describe ('Integration: Model: User', () => {
 
@@ -95,6 +95,29 @@ describe ('Integration: Model: User', () => {
     it('should return null if no token is passed', async () => {
       const user = await User.create(userData);
       const foundUser = await User.findOneAuthenticated();
+      assert.isNull(foundUser);
+    });
+  });
+
+  describe('findOneActiveByEmail()', () => {
+    it('should return a matching user if active', async () => {
+      const user = await User.create(userData);
+      assert.isTrue(user.active);
+      const foundUser = await User.findOneActiveByEmail(user.email);
+      assert.equal(foundUser.email, userData.email, 'user was found');
+    });
+    it('should return null if user is inactive', async () => {
+      const user = await User.create(userData);
+      user.active = false;
+      await user.save();
+      assert.isFalse(user.active);
+      const foundUser = await User.findOneActiveByEmail(user.email);
+      assert.isNull(foundUser);
+    });
+    it('should return null if no matching user is found', async () => {
+      const user = await User.create(userData);
+      assert.isTrue(user.active);
+      const foundUser = await User.findOneActiveByEmail('nosuch@email.com');
       assert.isNull(foundUser);
     });
   });

@@ -115,6 +115,15 @@ class UserModel {
   };
 
   /**
+   * Returns a user matching the email address, if active.
+   * @param {string} email - user email
+   * @return {UserModel|null}
+   */
+  static async findOneActiveByEmail(email) {
+    return await this.findOne({email, active: true});
+  };
+
+  /**
    * Returns a user matching the authentication token, if the claim is valid.
    * @param {jwtToken} jwtToken - a token claiming an authenticated user
    * @return {UserModel|null}

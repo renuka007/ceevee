@@ -12,6 +12,10 @@ describe ('Unit: Model: User', () => {
       const user = new User();
       assert.instanceOf(user.created_on, Date, 'created_on is an Date');
     });
+    it('should include an active boolean defaulting to false', () => {
+      const user = new User();
+      assert.isFalse(user.active, 'active is false');
+    });
   });
 
   describe('validate', () => {

@@ -26,7 +26,7 @@ describe ('Integration: Auth Strategy: JWT Activation', () => {
     await DatabaseHelper.connect();
     await DatabaseHelper.empty(User);
     user = await User.create(userData);
-    token = await user.issueActivationToken(userData.password);
+    token = await user.issueActivationToken();
     bearerAuthHeader = `Bearer ${token}`;
   });
 

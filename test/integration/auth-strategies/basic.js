@@ -17,7 +17,7 @@ import { JWT_SECRET } from '../../../config/config';
 chai.use(passportTest);
 
 let user = null;
-const userData = {email: 'test@test.com', password: 'test1234'};
+const userData = {email: 'test@test.com', password: 'test1234', active: true};
 const nonExistentUserData = {email: 'foo@bar.com', password: 'nosuchuser'};
 const invalidUserData = {email: 'test@test.com', password: 'wrongpassword'};
 const basicAuthHeader = ['Basic',
@@ -46,6 +46,7 @@ describe ('Integration: Auth Strategy: Basic', () => {
 
   describe('strategy', () => {
     it('should return an authentication claim JWT', (done) => {
+      assert.isTrue(user.active);
       chai.passport.use(basicAuthStrategy)
         .success(function (response) {
           const decoded = jwt.verify(response, JWT_SECRET);
@@ -93,6 +94,19 @@ describe ('Integration: Auth Strategy: Basic', () => {
         .error(function (err) {
           assert.instanceOf(err, UnauthorizedError);
           done();
+        })
+        .req(function (req) {
+          req.headers.authorization = basicAuthInvalidHeader;
+        })
+        .authenticate();
+    });
+    it('should return UnauthorizedError when user is inactive', async () => {
+      user.set({active: false});
+      await user.save();
+      assert.isFalse(user.active);
+      chai.passport.use(basicAuthStrategy)
+        .error(function (err) {
+          assert.instanceOf(err, UnauthorizedError);
         })
         .req(function (req) {
           req.headers.authorization = basicAuthInvalidHeader;

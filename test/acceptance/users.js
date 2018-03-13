@@ -1,18 +1,26 @@
 import { assert } from 'chai';
 import supertest from 'supertest';
+import sinon from 'sinon';
+import sgMail from '@sendgrid/mail';
+
 import server from '../../app/server';
 import User from '../../app/models/user';
 import DatabaseHelper from '../helpers/database-helper';
+
+
+let sandbox = sinon.sandbox.create();
 
 describe('Acceptance: Route: /users', () => {
 
   beforeEach(async () => {
     await DatabaseHelper.connect();
     await DatabaseHelper.empty(User);
+    sandbox.stub(sgMail, 'send');
   });
 
   afterEach(async () => {
     await DatabaseHelper.disconnect();
+    sandbox.restore();
   });
 
   describe('POST', () => {
@@ -24,6 +32,15 @@ describe('Acceptance: Route: /users', () => {
         .expect(201)
         .expect({email: 'test@test.com'});
       assert.equal(await User.count(), 1, 'one user saved');
+    });
+    it('should send an activation email', async () => {
+      sinon.assert.notCalled(sgMail.send);
+      await supertest(server)
+        .post('/users')
+        .send({email: 'test@test.com', password: 'test1234'})
+        .expect(201)
+        .expect({email: 'test@test.com'});
+      sinon.assert.calledOnce(sgMail.send);
     });
     it('should disallow creation of a user when email and password are missing [422]', async () => {
       assert.equal(await User.count(), 0, 'no users saved');

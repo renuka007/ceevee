@@ -19,8 +19,13 @@ services:
     volumes:
        - ./:/src
     working_dir: /src
+    env_file: .env
     environment:
       MONGODB_URI: mongodb://mongodb/test
+      EMAIL_SANDBOX_MODE: 'true'
+      SENDGRID_API_KEY: test
+      FROM_EMAIL: info@example.net
+      EMAIL_ACTIVATION_URL: https://www.example.net
       SALT_WORK_FACTOR: 1
       MIN_ZXCVBN_PASSWORD_STRENGTH: 1
       JWT_SECRET: insecurejwtsecret
@@ -35,7 +40,10 @@ services:
     working_dir: /src
     ports:
       - 5000:5000
+    env_file: .env
     environment:
       PORT: 5000
-      MONGODB_URI: mongodb://mongodb/ceevee
+      MONGODB_URI: mongodb://mongodb/service
+      FROM_EMAIL: info@example.net
+      EMAIL_ACTIVATION_URL: https://www.example.net
       JWT_SECRET: insecurejwtsecret

@@ -11,7 +11,7 @@ import { JWT_SECRET } from '../../config/config'
 
 
 let user = null;
-const userData = {email: 'test@test.com', password: 'test1234'};
+const userData = {email: 'test@test.com', password: 'test1234', active: true};
 const nonExistentUserData = {email: 'foo@bar.com', password: 'nosuchuser'};
 const invalidUserData = {email: 'test@test.com', password: 'wrongpassword'};
 const basicAuthHeader = ['Basic',
@@ -41,6 +41,7 @@ describe('Acceptance: Route: /auth/login', () => {
 
   describe('GET', () => {
     it('should return an authentication claim JWT [200]', async () => {
+      assert.isTrue(user.active);
       await supertest(server)
         .get('/auth/login')
         .set('Authorization', basicAuthHeader)
@@ -76,6 +77,16 @@ describe('Acceptance: Route: /auth/login', () => {
       await supertest(server)
         .get('/auth/login')
         .set('Authorization', basicAuthInvalidHeader)
+        .send()
+        .expect(401);
+    });
+    it('should fail when user is inactive [400]', async () => {
+      user.set({active: false});
+      await user.save();
+      assert.isFalse(user.active);
+      await supertest(server)
+        .get('/auth/login')
+        .set('Authorization', basicAuthHeader)
         .send()
         .expect(401);
     });

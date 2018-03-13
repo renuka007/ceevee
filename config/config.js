@@ -15,7 +15,7 @@ const SERVER_NAME = process.env.SERVER_NAME || 'Server';
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR || '10', 10);
 const MIN_ZXCVBN_PASSWORD_STRENGTH =
   parseInt(process.env.MIN_ZXCVBN_PASSWORD_STRENGTH || '2', 10);
-const JWT_SECRET = process.env.JWT_SECRET;
+const SECURE_KEY = process.env.SECURE_KEY;
 const JWT_LOGIN_EXPIRES_IN = process.env.JWT_LOGIN_EXPIRES_IN || '7d';
 const JWT_ACTIVATION_EXPIRES_IN = process.env.JWT_ACTIVATION_EXPIRES_IN || '1d';
 
@@ -30,7 +30,7 @@ export {
   SERVER_NAME,
   SALT_WORK_FACTOR,
   MIN_ZXCVBN_PASSWORD_STRENGTH,
-  JWT_SECRET,
+  SECURE_KEY,
   JWT_LOGIN_EXPIRES_IN,
   JWT_ACTIVATION_EXPIRES_IN
 }

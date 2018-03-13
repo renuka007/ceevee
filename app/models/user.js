@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import UserSchema from '../schemas/user';
 import {
   SALT_WORK_FACTOR,
-  JWT_SECRET,
+  SECURE_KEY,
   JWT_LOGIN_EXPIRES_IN,
   JWT_ACTIVATION_EXPIRES_IN } from '../../config/config';
 
@@ -62,7 +62,7 @@ class UserModel {
     if (await this.comparePassword(password)) {
       return jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: this.email
@@ -78,7 +78,7 @@ class UserModel {
   issueActivationToken() {
     return jwt.sign({
       activate: true
-    }, JWT_SECRET, {
+    }, SECURE_KEY, {
       algorithm: 'HS512',
       expiresIn: JWT_ACTIVATION_EXPIRES_IN,
       subject: this.email
@@ -137,7 +137,7 @@ class UserModel {
       // invalid, or undefined.
       // Semantically, no authenticated user is found under these circumstances,
       // so we don't want the error to propagate.  Instead, we just return null.
-      const decoded = jwt.verify(jwtToken, JWT_SECRET);
+      const decoded = jwt.verify(jwtToken, SECURE_KEY);
       return decoded;
     } catch (e) { }
     return {};

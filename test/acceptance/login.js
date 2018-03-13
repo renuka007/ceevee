@@ -7,7 +7,7 @@ import User from '../../app/models/user';
 
 import DatabaseHelper from '../helpers/database-helper';
 
-import { JWT_SECRET } from '../../config/config'
+import { SECURE_KEY } from '../../config/config'
 
 
 let user = null;
@@ -48,7 +48,7 @@ describe('Acceptance: Route: /auth/login', () => {
         .send()
         .expect(200)
         .expect((response) => {
-          const decoded = jwt.verify(response.body, JWT_SECRET);
+          const decoded = jwt.verify(response.body, SECURE_KEY);
           assert.equal(decoded.sub, user.email);
           assert.isTrue(decoded.authenticated);
         });

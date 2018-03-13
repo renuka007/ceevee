@@ -11,7 +11,7 @@ import jwtLoginAuthStrategy from '../../../app/auth-strategies/jwt-login';
 
 import DatabaseHelper from '../../helpers/database-helper';
 
-import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../../config/config'
+import { SECURE_KEY, JWT_LOGIN_EXPIRES_IN } from '../../../config/config'
 
 chai.use(passportTest);
 
@@ -68,7 +68,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     it('should return UnauthorizedError when token is expired', (done) => {
       const expiredToken = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '-1d',
         subject: user.email
@@ -87,7 +87,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     it('should return UnauthorizedError when subject does not exist', (done) => {
       const token = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: 'nosuch@email.com'
@@ -106,7 +106,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     it('should return UnauthorizedError when payload does not assert `authenticated: true`', (done) => {
       const unauthenticatedToken = jwt.sign({
         authenticated: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: user.email

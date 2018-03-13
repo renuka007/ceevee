@@ -7,7 +7,7 @@ import User from '../../app/models/user';
 
 import DatabaseHelper from '../helpers/database-helper';
 
-import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
+import { SECURE_KEY, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
 
 
 let user = null;
@@ -52,7 +52,7 @@ describe('Acceptance: Route: /auth/ping', () => {
     it('should fail when token is expired [401]', async () => {
       const expiredToken = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '-1d',
         subject: user.email
@@ -67,7 +67,7 @@ describe('Acceptance: Route: /auth/ping', () => {
     it('should fail when subject does not exist [401]', async () => {
       const token = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: 'nosuch@email.com'
@@ -82,7 +82,7 @@ describe('Acceptance: Route: /auth/ping', () => {
     it('should fail when payload does not assert `authenticated: true` [401]', async () => {
       const unauthenticatedToken = jwt.sign({
         authenticated: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: user.email

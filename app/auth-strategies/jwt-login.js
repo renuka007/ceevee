@@ -3,7 +3,7 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import { UnauthorizedError } from 'restify-errors';
 
 import User from '../models/user';
-import { JWT_SECRET } from '../../config/config';
+import { SECURE_KEY } from '../../config/config';
 
 
 /**

@@ -11,7 +11,7 @@ import basicAuthStrategy from '../../../app/auth-strategies/basic';
 
 import DatabaseHelper from '../../helpers/database-helper';
 
-import { JWT_SECRET } from '../../../config/config';
+import { SECURE_KEY } from '../../../config/config';
 
 
 chai.use(passportTest);
@@ -49,7 +49,7 @@ describe ('Integration: Auth Strategy: Basic', () => {
       assert.isTrue(user.active);
       chai.passport.use(basicAuthStrategy)
         .success(function (response) {
-          const decoded = jwt.verify(response, JWT_SECRET);
+          const decoded = jwt.verify(response, SECURE_KEY);
           assert.equal(decoded.sub, user.email);
           assert.isTrue(decoded.authenticated);
           done();

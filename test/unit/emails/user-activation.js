@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import sinon from 'sinon';
 import sgMail from '@sendgrid/mail';
 
 import User from '../../../app/models/user';
@@ -10,20 +11,16 @@ import {
   SERVICE_NAME } from '../../../config/config';
 
 
-let sendCount = 0;
-let sentMessage = null;
-
-// mock the send function to intercept send count and message data
-sgMail.send = (msg) => {
-  sendCount++;
-  sentMessage = msg;
-};
+let sandbox = sinon.sandbox.create();
 
 describe ('Unit: Email: User Activation', () => {
 
   beforeEach(() => {
-    sendCount = 0;
-    sentMessage = null;
+    sandbox.stub(sgMail, 'send');
+  });
+
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('EMAIL_SANDBOX_MODE', () => {
@@ -35,30 +32,30 @@ describe ('Unit: Email: User Activation', () => {
   describe('sendUserActivationEmail()', () => {
     it('should send email via `sgMail.send()`', async () => {
       const user = new User({email: 'test@test.com'});
-      assert.equal(sendCount, 0);
+      sinon.assert.notCalled(sgMail.send);
       await sendUserActivationEmail(user);
-      assert.equal(sendCount, 1);
+      sinon.assert.calledOnce(sgMail.send);
     });
     it('should send email from FROM_EMAIL', async () => {
       const user = new User({email: 'test@test.com'});
       await sendUserActivationEmail(user);
-      assert.equal(sentMessage.from, FROM_EMAIL);
+      assert.equal(sgMail.send.firstCall.args[0].from, FROM_EMAIL);
     });
     it('should send email to `user.email`', async () => {
       const user = new User({email: 'test@test.com'});
       await sendUserActivationEmail(user);
-      assert.equal(sentMessage.to, user.email);
+      assert.equal(sgMail.send.firstCall.args[0].to, user.email);
     });
     it('should send email with subject containing SERVICE_NAME', async () => {
       const user = new User({email: 'test@test.com'});
       await sendUserActivationEmail(user);
-      assert.include(sentMessage.subject, SERVICE_NAME);
+      assert.include(sgMail.send.firstCall.args[0].subject, SERVICE_NAME);
     });
     it('should send email with body containing EMAIL_ACTIVATION_URL', async () => {
       const user = new User({email: 'test@test.com'});
       await sendUserActivationEmail(user);
-      assert.include(sentMessage.text, EMAIL_ACTIVATION_URL);
-      assert.include(sentMessage.html, EMAIL_ACTIVATION_URL);
+      assert.include(sgMail.send.firstCall.args[0].text, EMAIL_ACTIVATION_URL);
+      assert.include(sgMail.send.firstCall.args[0].html, EMAIL_ACTIVATION_URL);
     });
   });
 

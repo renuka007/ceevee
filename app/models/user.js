@@ -170,7 +170,7 @@ class UserModel {
    */
   static async findOneAuthenticated(jwtToken) {
     const email = this.verifyAuthenticationToken(jwtToken);
-    return await this.findOne({email});
+    return await this.findOneActiveByEmail(email);
   };
 
   /**

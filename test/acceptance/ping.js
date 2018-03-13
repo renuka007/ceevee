@@ -11,7 +11,7 @@ import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
 
 
 let user = null;
-const userData = {email: 'test@test.com', password: 'test1234'};
+const userData = {email: 'test@test.com', password: 'test1234', active: true};
 
 describe('Acceptance: Route: /auth/ping', () => {
 
@@ -88,6 +88,18 @@ describe('Acceptance: Route: /auth/ping', () => {
         subject: user.email
       });
       const bearerAuthHeader = `Bearer ${unauthenticatedToken}`;
+      await supertest(server)
+        .get('/auth/ping')
+        .set('Authorization', bearerAuthHeader)
+        .send()
+        .expect(401);
+    });
+    it('should fail if user is inactive [401]', async () => {
+      const token = await user.issueAuthenticationToken(userData.password);
+      const bearerAuthHeader = `Bearer ${token}`;
+      user.set({active: false});
+      await user.save();
+      assert.isFalse(user.active);
       await supertest(server)
         .get('/auth/ping')
         .set('Authorization', bearerAuthHeader)

@@ -18,7 +18,7 @@ chai.use(passportTest);
 let user = null;
 let token = null;
 let bearerAuthHeader = null;
-const userData = {email: 'test@test.com', password: 'test1234'};
+const userData = {email: 'test@test.com', password: 'test1234', active: true};
 
 describe ('Integration: Auth Strategy: JWT Login', () => {
 
@@ -116,6 +116,19 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
         .error(function (err) {
           assert.instanceOf(err, UnauthorizedError);
           done();
+        })
+        .req(function (req) {
+          req.headers.authorization = bearerAuthHeader;
+        })
+        .authenticate();
+    });
+    it('should return UnauthorizedError if user is inactive', async () => {
+      user.set({active: false});
+      await user.save();
+      assert.isFalse(user.active);
+      await chai.passport.use(jwtLoginAuthStrategy)
+        .error(function (err) {
+          assert.instanceOf(err, UnauthorizedError);
         })
         .req(function (req) {
           req.headers.authorization = bearerAuthHeader;

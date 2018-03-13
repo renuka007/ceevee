@@ -7,6 +7,7 @@ import jwtActivationAuthStrategy from './auth-strategies/jwt-activation';
 
 import validationErrorHandler from './route-helpers/validation-error-handler';
 import restifyErrorHandler from './route-helpers/restify-error-handler';
+import staticResponse from './route-helpers/static-response';
 import asyncRoute from './route-helpers/async-route';
 
 import { usersPostRoute } from './routes/users'
@@ -21,17 +22,23 @@ passport.use(basicAuthStrategy);
 passport.use(jwtActivationAuthStrategy);
 passport.use(jwtLoginAuthStrategy);
 
+
 // Setup error handlers
 // Format validation errors consistently
 server.on('Validation', validationErrorHandler);
 // Format other errors consistently
 server.on('restifyError', restifyErrorHandler);
 
+
 // Routes
+
+// /users
+server.post('/users', asyncRoute(usersPostRoute));
+
 // /auth/activate
 server.put('/auth/activate',
   passport.authenticate('jwt-activation', {session: false}),
-  (req, res) => res.send({active: true}));
+  staticResponse({active: true}));
 // /auth/login
 server.get('/auth/login',
   passport.authenticate('basic', {session: false}),
@@ -39,9 +46,6 @@ server.get('/auth/login',
 // /auth/ping
 server.get('/auth/ping',
   passport.authenticate('jwt-login', {session: false}),
-  (req, res) => res.send({authenticated: true}));
-
-// /users
-server.post('/users', asyncRoute(usersPostRoute));
+  staticResponse({authenticated: true}));
 
 export default server;

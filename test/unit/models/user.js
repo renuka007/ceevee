@@ -203,6 +203,36 @@ describe ('Unit: Model: User', () => {
     });
   });
 
+  describe('static verifyToken()', () => {
+    it('should return the token JSON if the token is valid', () => {
+      const validToken = jwt.sign({
+        foo: 'bar'
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const decoded = User.verifyToken(validToken);
+      assert.equal(decoded.foo, 'bar');
+      assert.equal(decoded.sub, 'test@test.com');
+    });
+    it('should return empty JSON if token is expired', () => {
+      const validToken = jwt.sign({
+        foo: 'bar'
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: '-0s',
+        subject: 'test@test.com'
+      });
+      const decoded = User.verifyToken(validToken);
+      assert.isUndefined(decoded.sub);
+    });
+    it('should return undefined if token is invalid', () => {
+      const decoded = User.verifyToken('invalid token');
+      assert.isUndefined(decoded.sub);
+    });
+  });
+
   describe('static verifyAuthenticationToken()', () => {
     it('should return the email from the token if the authentication claim is valid', async () => {
       const validToken = jwt.sign({
@@ -224,15 +254,15 @@ describe ('Unit: Model: User', () => {
         subject: 'test@test.com'
       });
       const email = User.verifyAuthenticationToken(token);
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
     it('should return null if token is invalid', async () => {
       const email = User.verifyAuthenticationToken('invalid token');
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
     it('should return null if no token is passed', async () => {
       const email = User.verifyAuthenticationToken();
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
   });
 
@@ -257,15 +287,15 @@ describe ('Unit: Model: User', () => {
         subject: 'test@test.com'
       });
       const email = User.verifyActivationToken(token);
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
     it('should return null if token is invalid', async () => {
       const email = User.verifyActivationToken('invalid token');
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
     it('should return null if no token is passed', async () => {
       const email = User.verifyActivationToken();
-      assert.isNull(email, 'no email returned');
+      assert.isUndefined(email, 'no email returned');
     });
   });
 });

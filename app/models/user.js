@@ -126,39 +126,41 @@ class UserModel {
   };
 
   /**
-   * Returns the email from the token, if the authentication claim is valid.
-   * @param {string} jwtToken - a token claiming an authenticated user
-   * @return {string|null}
+   * Returns the token JSON, if the token is valid,
+   * empty JSON otherwise.
+   * @param {string} jwtToken - a JSON web token
+   * @return {json}
    */
-  static verifyAuthenticationToken(jwtToken) {
+  static verifyToken(jwtToken) {
     try {
       // Inside try since `jwt.verify` throws an exception if token is expired,
       // invalid, or undefined.
       // Semantically, no authenticated user is found under these circumstances,
       // so we don't want the error to propagate.  Instead, we just return null.
       const decoded = jwt.verify(jwtToken, JWT_SECRET);
-      const isAuthenticated = decoded.authenticated;
-      if (isAuthenticated) return decoded.sub;
+      return decoded;
     } catch (e) { }
-    return null;
+    return {};
+  }
+
+  /**
+   * Returns the email from the token, if the claim is valid.
+   * @param {string} jwtToken - a token claiming authenticated user
+   * @return {string|null}
+   */
+  static verifyAuthenticationToken(jwtToken) {
+    const decoded = this.verifyToken(jwtToken);
+    if (decoded.authenticated) return decoded.sub;
   };
 
   /**
-   * Returns the email from the token, if the activation claim is valid.
+   * Returns the email from the token, if the claim is valid.
    * @param {string} jwtToken - a token claiming a user may activate
    * @return {string|null}
    */
   static verifyActivationToken(jwtToken) {
-    try {
-      // Inside try since `jwt.verify` throws an exception if token is expired,
-      // invalid, or undefined.
-      // Semantically, no user is found under these circumstances,
-      // so we don't want the error to propagate.  Instead, we just return null.
-      const decoded = jwt.verify(jwtToken, JWT_SECRET);
-      const activationAllowed = decoded.activate;
-      if (activationAllowed) return decoded.sub;
-    } catch (e) { }
-    return null;
+    const decoded = this.verifyToken(jwtToken);
+    if (decoded.activate) return decoded.sub;
   };
 
   /**

@@ -7,13 +7,13 @@ import User from '../../app/models/user';
 
 import DatabaseHelper from '../helpers/database-helper';
 
-import { JWT_SECRET, JWT_LOGIN_EXPIRES_IN } from '../../config/config'
+import { JWT_SECRET, JWT_ACTIVATION_EXPIRES_IN } from '../../config/config'
 
 
 let user = null;
 const userData = {email: 'test@test.com', password: 'test1234'};
 
-describe('Acceptance: Route: /auth/ping', () => {
+describe('Acceptance: Route: /auth/activate', () => {
 
   beforeEach(async () => {
     await DatabaseHelper.connect();
@@ -26,32 +26,48 @@ describe('Acceptance: Route: /auth/ping', () => {
   });
 
   describe('GET', () => {
-    it('should acknowledge authentication if token is valid [200]', async () => {
-      const token = await user.issueAuthenticationToken(userData.password);
+    it('should activate the specified user if token is valid [200]', async () => {
+      const token = await user.issueActivationToken();
       const bearerAuthHeader = `Bearer ${token}`;
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .set('Authorization', bearerAuthHeader)
         .send()
         .expect(200)
-        .expect({authenticated: true});
+        .expect({active: true});
+    });
+    it('should activate the specified user even if already active if token is valid [200]', async () => {
+      const user = await User.create({
+        email: 'foo@test.com',
+        password: 'test1234',
+        active: true
+      });
+      const token = await user.issueActivationToken();
+      const bearerAuthHeader = `Bearer ${token}`;
+      await supertest(server)
+        .put('/auth/activate')
+        .set('Authorization', bearerAuthHeader)
+        .send()
+        .expect(200)
+        .expect({active: true});
     });
     it('should fail when no token is passed [401]', async () => {
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .send()
         .expect(401);
     });
+
     it('should fail when invalid token is passed [401]', async () => {
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .set('Authorization', 'invalid token')
         .send()
         .expect(401);
     });
     it('should fail when token is expired [401]', async () => {
       const expiredToken = jwt.sign({
-        authenticated: true
+        activate: true
       }, JWT_SECRET, {
         algorithm: 'HS512',
         expiresIn: '-1d',
@@ -59,37 +75,37 @@ describe('Acceptance: Route: /auth/ping', () => {
       });
       const bearerAuthHeader = `Bearer ${expiredToken}`;
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .set('Authorization', bearerAuthHeader)
         .send()
         .expect(401);
     });
     it('should fail when subject does not exist [401]', async () => {
       const token = jwt.sign({
-        authenticated: true
+        activate: true
       }, JWT_SECRET, {
         algorithm: 'HS512',
-        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        expiresIn: JWT_ACTIVATION_EXPIRES_IN,
         subject: 'nosuch@email.com'
       });
       const bearerAuthHeader = `Bearer ${token}`;
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .set('Authorization', bearerAuthHeader)
         .send()
         .expect(401);
     });
-    it('should fail when payload does not assert `authenticated: true` [401]', async () => {
-      const unauthenticatedToken = jwt.sign({
-        authenticated: false
+    it('should fail when payload does not assert `activate: true` [401]', async () => {
+      const nonActivationToken = jwt.sign({
+        activate: false
       }, JWT_SECRET, {
         algorithm: 'HS512',
-        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        expiresIn: JWT_ACTIVATION_EXPIRES_IN,
         subject: user.email
       });
-      const bearerAuthHeader = `Bearer ${unauthenticatedToken}`;
+      const bearerAuthHeader = `Bearer ${nonActivationToken}`;
       await supertest(server)
-        .get('/auth/ping')
+        .put('/auth/activate')
         .set('Authorization', bearerAuthHeader)
         .send()
         .expect(401);

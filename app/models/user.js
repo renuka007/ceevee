@@ -1,7 +1,12 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import UserSchema from '../schemas/user';
-import { SALT_WORK_FACTOR } from '../../config/config'
+import {
+  SALT_WORK_FACTOR,
+  JWT_SECRET,
+  JWT_LOGIN_EXPIRES_IN,
+  JWT_ACTIVATION_EXPIRES_IN } from '../../config/config';
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -14,6 +19,16 @@ import { SALT_WORK_FACTOR } from '../../config/config'
 class UserModel {
 
   // =instance methods
+
+  /**
+   * Updates `active` to `true` in the DB.  While this action seems trivial, the
+   * meaning of "activation" is intentionally encapsulated within the user model
+   * so that it can easily change if necessary.
+   */
+  async activate() {
+    this.set({active: true});
+    await this.save();
+  };
 
   /**
    * Hashes the plaintext password into the same field.
@@ -33,7 +48,41 @@ class UserModel {
    */
   async comparePassword(candidatePassword) {
     const hash = this.password;
-  	return await this.constructor.comparePassword(candidatePassword, hash);
+    return await this.constructor.comparePassword(candidatePassword, hash);
+  };
+
+  /**
+   * Creates an authentication claim JWT for this user if the passed password is
+   * a match according to `comparePassword()`.
+   * @param {string} password - a plaintext password to check
+   * @returns {string|undefined} a JWT asserting the authentication claim of
+   *  this user; undefined if password is wrong
+   */
+  async issueAuthenticationToken(password) {
+    if (await this.comparePassword(password)) {
+      return jwt.sign({
+        authenticated: true
+      }, JWT_SECRET, {
+        algorithm: 'HS512',
+        expiresIn: JWT_LOGIN_EXPIRES_IN,
+        subject: this.email
+      });
+    }
+  };
+
+  /**
+   * Creates an activation claim JWT for this user.
+   * @returns {string|undefined} a JWT asserting the activation claim of
+   *  this user; undefined if password is wrong
+   */
+  issueActivationToken() {
+    return jwt.sign({
+      activate: true
+    }, JWT_SECRET, {
+      algorithm: 'HS512',
+      expiresIn: JWT_ACTIVATION_EXPIRES_IN,
+      subject: this.email
+    });
   };
 
   // =class methods
@@ -43,10 +92,13 @@ class UserModel {
    * @param {string} candidatePassword - a plaintext password to check
    * @param {string} hash - a password hash
    * @return {boolean} `true` if `candidatePassword`, once hashed, matches
-   *         the passed `hash`.
+   *         the passed `hash`; `false` otherwise
    */
   static async comparePassword(candidatePassword, hash) {
-    return await bcrypt.compare(candidatePassword, hash);
+    if (candidatePassword && hash) {
+      return await bcrypt.compare(candidatePassword, hash);
+    }
+    return false;
   };
 
   /**
@@ -71,6 +123,77 @@ class UserModel {
       isHash = true;
     } catch (e) {}
     return isHash;
+  };
+
+  /**
+   * Returns the email from the token, if the authentication claim is valid.
+   * @param {string} jwtToken - a token claiming an authenticated user
+   * @return {string|null}
+   */
+  static verifyAuthenticationToken(jwtToken) {
+    try {
+      // Inside try since `jwt.verify` throws an exception if token is expired,
+      // invalid, or undefined.
+      // Semantically, no authenticated user is found under these circumstances,
+      // so we don't want the error to propagate.  Instead, we just return null.
+      const decoded = jwt.verify(jwtToken, JWT_SECRET);
+      const isAuthenticated = decoded.authenticated;
+      if (isAuthenticated) return decoded.sub;
+    } catch (e) { }
+    return null;
+  };
+
+  /**
+   * Returns the email from the token, if the activation claim is valid.
+   * @param {string} jwtToken - a token claiming a user may activate
+   * @return {string|null}
+   */
+  static verifyActivationToken(jwtToken) {
+    try {
+      // Inside try since `jwt.verify` throws an exception if token is expired,
+      // invalid, or undefined.
+      // Semantically, no user is found under these circumstances,
+      // so we don't want the error to propagate.  Instead, we just return null.
+      const decoded = jwt.verify(jwtToken, JWT_SECRET);
+      const activationAllowed = decoded.activate;
+      if (activationAllowed) return decoded.sub;
+    } catch (e) { }
+    return null;
+  };
+
+  /**
+   * Returns a user matching the authentication token, if the claim is valid.
+   * @param {string} jwtToken - a token claiming an authenticated user
+   * @return {UserModel|null}
+   */
+  static async findOneAuthenticated(jwtToken) {
+    const email = this.verifyAuthenticationToken(jwtToken);
+    return await this.findOne({email});
+  };
+
+  /**
+   * Finds a user matching the activation claim, if valid, activates the user,
+   * and returns the user instance.
+   * @param {string} jwtToken - a token claiming activation for a user
+   * @return {UserModel|null}
+   */
+  static async findOneAndActivate(jwtToken) {
+    const email = this.verifyActivationToken(jwtToken);
+    const user = await this.findOne({email});
+    if (user) {
+      await user.activate();
+      return user;
+    }
+    return null;
+  };
+
+  /**
+   * Returns an active user.
+   * @param {string} email - a user email
+   * @return {UserModel|null}
+   */
+  static async findOneActiveByEmail(email) {
+    return await this.findOne({email, active: true});
   };
 }
 

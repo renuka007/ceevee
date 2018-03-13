@@ -11,24 +11,11 @@ import { JWT_SECRET } from '../../config/config';
  * Checks that the token is valid and that the authenticated subject exists.
  */
 const jwtLoginAuthStrategy = new BearerStrategy(async (token, next) => {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const isAuthenticated = decoded.authenticated;
-    const user = await User.findOne({email: decoded.sub});
-    if (isAuthenticated && user) {
-      // email and password are valid
-      // build and return a JWT
-      return next(null, {
-        email: user.email
-      });
-    } else {
-      // return unauthorized if token is invalid
-      return next(new UnauthorizedError());
-    }
-  } catch (e) {
-    // return unauthorized for all other errors
-    return next(new UnauthorizedError());
+  const user = await User.findOneAuthenticated(token);
+  if (user) {
+    return next(null, user);
   }
+  return next(new UnauthorizedError());
 });
 
 jwtLoginAuthStrategy.name = 'jwt-login';

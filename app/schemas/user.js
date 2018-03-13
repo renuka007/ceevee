@@ -11,6 +11,10 @@ const UserSchema = new Schema({
     required: true,
     default: Date.now
   },
+  active: {
+    type: Boolean,
+    default: false
+  },
   email: {
     type: String,
     match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,

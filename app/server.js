@@ -3,6 +3,7 @@ import passport from 'passport';
 
 import basicAuthStrategy from './auth-strategies/basic';
 import jwtLoginAuthStrategy from './auth-strategies/jwt-login';
+import jwtActivationAuthStrategy from './auth-strategies/jwt-activation';
 
 import validationErrorHandler from './route-helpers/validation-error-handler';
 import restifyErrorHandler from './route-helpers/restify-error-handler';
@@ -17,6 +18,7 @@ const server = restify.createServer({name: SERVER_NAME});
 server.use(restify.plugins.bodyParser());
 // Setup auth
 passport.use(basicAuthStrategy);
+passport.use(jwtActivationAuthStrategy);
 passport.use(jwtLoginAuthStrategy);
 
 // Setup error handlers
@@ -26,6 +28,10 @@ server.on('Validation', validationErrorHandler);
 server.on('restifyError', restifyErrorHandler);
 
 // Routes
+// /auth/activate
+server.put('/auth/activate',
+  passport.authenticate('jwt-activation', {session: false}),
+  (req, res) => res.send({active: true}));
 // /auth/login
 server.get('/auth/login',
   passport.authenticate('basic', {session: false}),

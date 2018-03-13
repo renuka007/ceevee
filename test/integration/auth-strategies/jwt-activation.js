@@ -7,7 +7,7 @@ import { UnauthorizedError } from 'restify-errors';
 
 import server from '../../../app/server';
 import User from '../../../app/models/user';
-import jwtLoginAuthStrategy from '../../../app/auth-strategies/jwt-login';
+import jwtActivationAuthStrategy from '../../../app/auth-strategies/jwt-activation';
 
 import DatabaseHelper from '../../helpers/database-helper';
 
@@ -20,13 +20,13 @@ let token = null;
 let bearerAuthHeader = null;
 const userData = {email: 'test@test.com', password: 'test1234'};
 
-describe ('Integration: Auth Strategy: JWT Login', () => {
+describe ('Integration: Auth Strategy: JWT Activation', () => {
 
   beforeEach(async () => {
     await DatabaseHelper.connect();
     await DatabaseHelper.empty(User);
     user = await User.create(userData);
-    token = await user.issueAuthenticationToken(userData.password);
+    token = await user.issueActivationToken(userData.password);
     bearerAuthHeader = `Bearer ${token}`;
   });
 
@@ -36,7 +36,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
 
   describe('strategy', () => {
     it('should return email if token is valid', (done) => {
-      chai.passport.use(jwtLoginAuthStrategy)
+      chai.passport.use(jwtActivationAuthStrategy)
         .success((response) => {
           assert.deepEqual(response.email, 'test@test.com');
           done();
@@ -47,7 +47,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
         .authenticate();
     });
     it('should fail with 400 when an invalid token is passed', (done) => {
-      chai.passport.use(jwtLoginAuthStrategy)
+      chai.passport.use(jwtActivationAuthStrategy)
         .fail(function (status) {
           assert.equal(status, 400);
           done();
@@ -58,7 +58,7 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
         .authenticate();
     });
     it('should fail when no token is passed', (done) => {
-      chai.passport.use(jwtLoginAuthStrategy)
+      chai.passport.use(jwtActivationAuthStrategy)
         .fail(function (status) {
           assert.ok(status);
           done();
@@ -67,14 +67,14 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     });
     it('should return UnauthorizedError when token is expired', (done) => {
       const expiredToken = jwt.sign({
-        authenticated: true
+        activate: true
       }, JWT_SECRET, {
         algorithm: 'HS512',
         expiresIn: '-1d',
         subject: user.email
       });
       const bearerAuthHeader = `Bearer ${expiredToken}`;
-      chai.passport.use(jwtLoginAuthStrategy)
+      chai.passport.use(jwtActivationAuthStrategy)
         .error(function (err) {
           assert.instanceOf(err, UnauthorizedError);
           done();
@@ -86,14 +86,14 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
     });
     it('should return UnauthorizedError when subject does not exist', (done) => {
       const token = jwt.sign({
-        authenticated: true
+        activate: true
       }, JWT_SECRET, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: 'nosuch@email.com'
       });
       const bearerAuthHeader = `Bearer ${token}`;
-      chai.passport.use(jwtLoginAuthStrategy)
+      chai.passport.use(jwtActivationAuthStrategy)
         .error(function (err) {
           assert.instanceOf(err, UnauthorizedError);
           done();
@@ -103,16 +103,16 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
         })
         .authenticate();
     });
-    it('should return UnauthorizedError when payload does not assert `authenticated: true`', (done) => {
-      const unauthenticatedToken = jwt.sign({
-        authenticated: false
+    it('should return UnauthorizedError when payload does not assert `activate: true`', (done) => {
+      const unactivateToken = jwt.sign({
+        activate: false
       }, JWT_SECRET, {
         algorithm: 'HS512',
         expiresIn: JWT_LOGIN_EXPIRES_IN,
         subject: user.email
       });
-      const bearerAuthHeader = `Bearer ${unauthenticatedToken}`;
-      chai.passport.use(jwtLoginAuthStrategy)
+      const bearerAuthHeader = `Bearer ${unactivateToken}`;
+      chai.passport.use(jwtActivationAuthStrategy)
         .error(function (err) {
           assert.instanceOf(err, UnauthorizedError);
           done();

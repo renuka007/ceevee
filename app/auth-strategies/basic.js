@@ -8,7 +8,7 @@ import User from '../models/user';
  * Successful authentication issues a JSON web token.
  */
 export default new BasicStrategy(async (email, password, next) => {
-  const user = await User.findOne({email});
+  const user = await User.findOneActiveByEmail(email);
   const token = user ? await user.issueAuthenticationToken(password) : null;
   if (token) {
     return next(null, token);

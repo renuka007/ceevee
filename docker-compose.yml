@@ -23,6 +23,7 @@ services:
     environment:
       MONGODB_URI: mongodb://mongodb/test
       EMAIL_SANDBOX_MODE: 'true'
+      SENDGRID_API_KEY: test
       FROM_EMAIL: info@example.net
       EMAIL_ACTIVATION_URL: https://www.example.net
       SALT_WORK_FACTOR: 1

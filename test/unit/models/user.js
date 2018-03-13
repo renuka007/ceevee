@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import jwt from 'jsonwebtoken';
 
 import User from '../../../app/models/user';
-import { JWT_SECRET } from '../../../config/config'
+import { SECURE_KEY } from '../../../config/config'
 
 
 describe ('Unit: Model: User', () => {
@@ -101,7 +101,7 @@ describe ('Unit: Model: User', () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
       await user.setPasswordHash();
       const token = await user.issueAuthenticationToken('test1234');
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, SECURE_KEY);
       assert.equal(decoded.sub, 'test@test.com');
       assert.isTrue(decoded.authenticated);
     });
@@ -133,7 +133,7 @@ describe ('Unit: Model: User', () => {
     it('should return a JWT claiming the user may activate', () => {
       const user = new User({email: 'test@test.com'});
       const token = user.issueActivationToken();
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, SECURE_KEY);
       assert.equal(decoded.sub, 'test@test.com');
       assert.isTrue(decoded.activate);
     });
@@ -207,7 +207,7 @@ describe ('Unit: Model: User', () => {
     it('should return the token JSON if the token is valid', () => {
       const validToken = jwt.sign({
         foo: 'bar'
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'test@test.com'
@@ -219,7 +219,7 @@ describe ('Unit: Model: User', () => {
     it('should return empty JSON if token is expired', () => {
       const validToken = jwt.sign({
         foo: 'bar'
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '-0s',
         subject: 'test@test.com'
@@ -237,7 +237,7 @@ describe ('Unit: Model: User', () => {
     it('should return the email from the token if the authentication claim is valid', async () => {
       const validToken = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'test@test.com'
@@ -248,7 +248,7 @@ describe ('Unit: Model: User', () => {
     it('should return null if authenticated is false', async () => {
       const token = jwt.sign({
         authenticated: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'test@test.com'
@@ -270,7 +270,7 @@ describe ('Unit: Model: User', () => {
     it('should return the email from the token if the activation claim is valid', async () => {
       const validToken = jwt.sign({
         activate: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'test@test.com'
@@ -281,7 +281,7 @@ describe ('Unit: Model: User', () => {
     it('should return null if activate is false', async () => {
       const token = jwt.sign({
         activate: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'test@test.com'

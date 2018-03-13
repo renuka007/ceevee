@@ -7,7 +7,7 @@ import User from '../../app/models/user';
 
 import DatabaseHelper from '../helpers/database-helper';
 
-import { JWT_SECRET, JWT_ACTIVATION_EXPIRES_IN } from '../../config/config'
+import { SECURE_KEY, JWT_ACTIVATION_EXPIRES_IN } from '../../config/config'
 
 
 let user = null;
@@ -68,7 +68,7 @@ describe('Acceptance: Route: /auth/activate', () => {
     it('should fail when token is expired [401]', async () => {
       const expiredToken = jwt.sign({
         activate: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '-1d',
         subject: user.email
@@ -83,7 +83,7 @@ describe('Acceptance: Route: /auth/activate', () => {
     it('should fail when subject does not exist [401]', async () => {
       const token = jwt.sign({
         activate: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_ACTIVATION_EXPIRES_IN,
         subject: 'nosuch@email.com'
@@ -98,7 +98,7 @@ describe('Acceptance: Route: /auth/activate', () => {
     it('should fail when payload does not assert `activate: true` [401]', async () => {
       const nonActivationToken = jwt.sign({
         activate: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: JWT_ACTIVATION_EXPIRES_IN,
         subject: user.email

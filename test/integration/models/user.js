@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import User from '../../../app/models/user';
 import DatabaseHelper from '../../helpers/database-helper';
-import { JWT_SECRET } from '../../../config/config';
+import { SECURE_KEY } from '../../../config/config';
 
 
 const userData = {email: 'test@test.com', password: 'test1234', active: true};
@@ -70,7 +70,7 @@ describe ('Integration: Model: User', () => {
       const user = await User.create(userData);
       const validToken = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: user.email
@@ -82,7 +82,7 @@ describe ('Integration: Model: User', () => {
       const user = await User.create(userData);
       const validToken = jwt.sign({
         authenticated: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'nosuch@email.com'
@@ -94,7 +94,7 @@ describe ('Integration: Model: User', () => {
       const user = await User.create(userData);
       const validToken = jwt.sign({
         authenticated: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: user.email
@@ -122,7 +122,7 @@ describe ('Integration: Model: User', () => {
       });
       const validToken = jwt.sign({
         activate: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: user.email
@@ -136,7 +136,7 @@ describe ('Integration: Model: User', () => {
       const user = await User.create(userData);
       const validToken = jwt.sign({
         activate: true
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: 'nosuch@email.com'
@@ -148,7 +148,7 @@ describe ('Integration: Model: User', () => {
       const user = await User.create(userData);
       const validToken = jwt.sign({
         activate: false
-      }, JWT_SECRET, {
+      }, SECURE_KEY, {
         algorithm: 'HS512',
         expiresIn: '10s',
         subject: user.email

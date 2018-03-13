@@ -56,6 +56,15 @@ are used when a variable is not set.
 
 - `PORT`:  port number on which API server should listen
 - `MONGODB_URI`:  URL of the MongoDB instance to which to connect
+- `SENDGRID_API_KEY`:  API key of the [SendGrid][sendgrid] account for email
+- `EMAIL_SANDBOX_MODE` (default `true`):  in sandbox mode, outgoing emails are
+  never actually sent, useful for testing
+- `FROM_EMAIL`:  `from` field for outgoing emails
+- `EMAIL_ACTIVATION_URL`:  URL for the activation email sent to new users,
+  most likely the frontend activation handler.  Activation token is passed via
+  this URL through the `token` query parameter (e.g. `?token=123XYZ`).
+- `SERVICE_NAME` (default: `Service`):  name of application as it appears in
+  user-facing messages, including email
 - `SERVER_NAME` (default: `Server`):  name of the API server (appears in logs)
 - `SALT_WORK_FACTOR` (default: `10`):  strength of [bcrypt][bcrypt] hashes
 - `MIN_ZXCVBN_PASSWORD_STRENGTH` (default: `2`):  minimum zxcvbn strength score
@@ -70,5 +79,6 @@ are used when a variable is not set.
 [docker]: https://www.docker.com
 [node]: https://nodejs.org
 [mongodb]: https://www.mongodb.com
+[sendgrid]: https://sendgrid.com
 [bcrypt]: https://www.npmjs.com/package/bcrypt
 [zeit/ms]: https://github.com/zeit/ms

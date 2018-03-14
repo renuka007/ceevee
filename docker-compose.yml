@@ -25,7 +25,8 @@ services:
       EMAIL_SANDBOX_MODE: 'true'
       SENDGRID_API_KEY: test
       FROM_EMAIL: info@example.net
-      EMAIL_ACTIVATION_URL: https://www.example.net
+      EMAIL_ACTIVATION_URL: https://www.example.net/activate
+      EMAIL_PASSWORD_RESET_URL: https://www.example.net/password-reset
       SALT_WORK_FACTOR: 1
       MIN_ZXCVBN_PASSWORD_STRENGTH: 1
       SECURE_KEY: insecurejwtsecret
@@ -45,5 +46,6 @@ services:
       PORT: 5000
       MONGODB_URI: mongodb://mongodb/service
       FROM_EMAIL: info@example.net
-      EMAIL_ACTIVATION_URL: https://www.example.net
+      EMAIL_ACTIVATION_URL: https://www.example.net/activate
+      EMAIL_PASSWORD_RESET_URL: https://www.example.net/password-reset
       SECURE_KEY: insecurejwtsecret

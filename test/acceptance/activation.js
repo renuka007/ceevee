@@ -25,7 +25,7 @@ describe('Acceptance: Route: /auth/activate', () => {
     await DatabaseHelper.disconnect();
   });
 
-  describe('GET', () => {
+  describe('PUT', () => {
     it('should activate the specified user if token is valid [200]', async () => {
       const token = await user.issueActivationToken();
       const bearerAuthHeader = `Bearer ${token}`;

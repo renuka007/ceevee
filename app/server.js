@@ -11,6 +11,7 @@ import staticResponse from './route-helpers/static-response';
 import asyncRoute from './route-helpers/async-route';
 
 import { usersPostRoute } from './routes/users'
+import { passwordResetRequestPostRoute } from './routes/password-reset'
 import { SERVER_NAME } from '../config/config'
 
 
@@ -39,6 +40,9 @@ server.post('/users', asyncRoute(usersPostRoute));
 server.put('/auth/activate',
   passport.authenticate('jwt-activation', {session: false}),
   staticResponse({active: true}));
+// /auth/password-reset-request
+server.post('/auth/password-reset-request',
+  asyncRoute(passwordResetRequestPostRoute));
 // /auth/login
 server.get('/auth/login',
   passport.authenticate('basic', {session: false}),

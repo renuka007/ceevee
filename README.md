@@ -63,6 +63,9 @@ are used when a variable is not set.
 - `EMAIL_ACTIVATION_URL`:  URL for the activation email sent to new users,
   most likely the frontend activation handler.  Activation token is passed via
   this URL through the `token` query parameter (e.g. `?token=123XYZ`).
+- `EMAIL_PASSWORD_RESET_URL`:  URL of password reset page sent to users
+  requesting password reset.  Password reset token is passed via this URL
+  through the `token` query parameter (e.g. `?token=123XYZ`).
 - `SERVICE_NAME` (default: `Service`):  name of application as it appears in
   user-facing messages, including email
 - `SERVER_NAME` (default: `Server`):  name of the API server (appears in logs)

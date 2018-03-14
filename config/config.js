@@ -10,6 +10,7 @@ const EMAIL_SANDBOX_MODE =
   (process.env.EMAIL_SANDBOX_MODE || 'true') === 'true';
 const FROM_EMAIL = process.env.FROM_EMAIL;
 const EMAIL_ACTIVATION_URL = process.env.EMAIL_ACTIVATION_URL;
+const EMAIL_PASSWORD_RESET_URL = process.env.EMAIL_PASSWORD_RESET_URL;
 const SERVICE_NAME = process.env.SERVICE_NAME || 'Service';
 const SERVER_NAME = process.env.SERVER_NAME || 'Server';
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR || '10', 10);
@@ -28,6 +29,7 @@ export {
   EMAIL_SANDBOX_MODE,
   FROM_EMAIL,
   EMAIL_ACTIVATION_URL,
+  EMAIL_PASSWORD_RESET_URL,
   SERVICE_NAME,
   SERVER_NAME,
   SALT_WORK_FACTOR,

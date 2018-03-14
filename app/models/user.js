@@ -6,7 +6,8 @@ import {
   SALT_WORK_FACTOR,
   SECURE_KEY,
   JWT_LOGIN_EXPIRES_IN,
-  JWT_ACTIVATION_EXPIRES_IN } from '../../config/config';
+  JWT_ACTIVATION_EXPIRES_IN,
+  JWT_PASSWORD_RESET_EXPIRES_IN } from '../../config/config';
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -73,7 +74,7 @@ class UserModel {
   /**
    * Creates an activation claim JWT for this user.
    * @returns {string|undefined} a JWT asserting the activation claim of
-   *  this user; undefined if password is wrong
+   *  this user
    */
   issueActivationToken() {
     return jwt.sign({
@@ -81,6 +82,21 @@ class UserModel {
     }, SECURE_KEY, {
       algorithm: 'HS512',
       expiresIn: JWT_ACTIVATION_EXPIRES_IN,
+      subject: this.email
+    });
+  };
+
+  /**
+   * Creates a password reset claim JWT for this user.
+   * @returns {string|undefined} a JWT asserting the password reset claim of
+   *  this user
+   */
+  issuePasswordResetToken() {
+    return jwt.sign({
+      passwordReset: true
+    }, SECURE_KEY, {
+      algorithm: 'HS512',
+      expiresIn: JWT_PASSWORD_RESET_EXPIRES_IN,
       subject: this.email
     });
   };
@@ -146,7 +162,7 @@ class UserModel {
   /**
    * Returns the email from the token, if the claim is valid.
    * @param {string} jwtToken - a token claiming authenticated user
-   * @return {string|null}
+   * @return {string|undefined}
    */
   static verifyAuthenticationToken(jwtToken) {
     const decoded = this.verifyToken(jwtToken);
@@ -156,11 +172,21 @@ class UserModel {
   /**
    * Returns the email from the token, if the claim is valid.
    * @param {string} jwtToken - a token claiming a user may activate
-   * @return {string|null}
+   * @return {string|undefined}
    */
   static verifyActivationToken(jwtToken) {
     const decoded = this.verifyToken(jwtToken);
     if (decoded.activate) return decoded.sub;
+  };
+
+  /**
+   * Returns the email from the token, if the claim is valid.
+   * @param {string} jwtToken - a token claiming a user may reset password
+   * @return {string|undefined}
+   */
+  static verifyPasswordResetToken(jwtToken) {
+    const decoded = this.verifyToken(jwtToken);
+    if (decoded.passwordReset) return decoded.sub;
   };
 
   /**

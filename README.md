@@ -74,6 +74,8 @@ are used when a variable is not set.
   expire, expressed in [zeit/ms][zeit/ms]
 - `JWT_ACTIVATION_EXPIRES_IN` (default: `1d`):  time from _now_ when activation
   tokens expire, expressed in [zeit/ms][zeit/ms]
+- `JWT_PASSWORD_RESET_EXPIRES_IN` (default: `15m`):  time from _now_ when
+  password reset tokens expire, expressed in [zeit/ms][zeit/ms]
 
 
 [docker]: https://www.docker.com

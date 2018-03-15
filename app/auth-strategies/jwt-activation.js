@@ -12,9 +12,7 @@ import { SECURE_KEY } from '../../config/config';
  */
 const jwtActivationAuthStrategy = new BearerStrategy(async (token, next) => {
   const user = await User.findOneAndActivate(token);
-  if (user) {
-    return next(null, user);
-  }
+  if (user) return next(null, user);
   return next(new UnauthorizedError());
 });
 

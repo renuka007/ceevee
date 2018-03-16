@@ -4,6 +4,7 @@ import passport from 'passport';
 import basicAuthStrategy from './auth-strategies/basic';
 import jwtLoginAuthStrategy from './auth-strategies/jwt-login';
 import jwtActivationAuthStrategy from './auth-strategies/jwt-activation';
+import jwtPasswordResetAuthStrategy from './auth-strategies/jwt-password-reset';
 
 import validationErrorHandler from './route-helpers/validation-error-handler';
 import restifyErrorHandler from './route-helpers/restify-error-handler';
@@ -11,6 +12,7 @@ import staticResponse from './route-helpers/static-response';
 import asyncRoute from './route-helpers/async-route';
 
 import { usersPostRoute } from './routes/users'
+import { passwordResetRequestPostRoute } from './routes/password-reset'
 import { SERVER_NAME } from '../config/config'
 
 
@@ -21,6 +23,7 @@ server.use(restify.plugins.bodyParser());
 passport.use(basicAuthStrategy);
 passport.use(jwtActivationAuthStrategy);
 passport.use(jwtLoginAuthStrategy);
+passport.use(jwtPasswordResetAuthStrategy);
 
 
 // Setup error handlers
@@ -39,6 +42,13 @@ server.post('/users', asyncRoute(usersPostRoute));
 server.put('/auth/activate',
   passport.authenticate('jwt-activation', {session: false}),
   staticResponse({active: true}));
+// /auth/password-reset-request
+server.post('/auth/password-reset-request',
+  asyncRoute(passwordResetRequestPostRoute));
+// /auth/password-reset
+server.put('/auth/password-reset',
+  passport.authenticate('jwt-password-reset', {session: false}),
+  staticResponse({passwordReset: true}));
 // /auth/login
 server.get('/auth/login',
   passport.authenticate('basic', {session: false}),

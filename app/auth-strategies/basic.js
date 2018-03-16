@@ -10,8 +10,6 @@ import User from '../models/user';
 export default new BasicStrategy(async (email, password, next) => {
   const user = await User.findOneActiveByEmail(email);
   const token = user ? await user.issueAuthenticationToken(password) : null;
-  if (token) {
-    return next(null, token);
-  }
+  if (token) return next(null, token);
   return next(new UnauthorizedError());
 });

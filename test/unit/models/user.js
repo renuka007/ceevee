@@ -96,6 +96,21 @@ describe ('Unit: Model: User', () => {
     });
   });
 
+  describe('issueToken()', () => {
+    it('should return a JWT claiming the payload for the user, with the given expiration, signed with SECURE_KEY', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueToken({foo: 'bar'}, '10s');
+      const decoded = jwt.verify(token, SECURE_KEY);
+      assert.equal(decoded.foo, 'bar');
+      assert.equal(decoded.sub, user.email);
+    });
+    it('should return a JWT that respects the specified expiresIn', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueToken({foo: 'bar'}, '-1d');
+      assert.throws(() => jwt.verify(token, SECURE_KEY));
+    });
+  });
+
   describe('issueAuthenticationToken()', () => {
     it('should return a JWT claiming the user is authenticated if password is a match', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});
@@ -144,6 +159,25 @@ describe ('Unit: Model: User', () => {
       const user = new User({email: 'test@test.com'});
       const token = await user.issueActivationToken();
       const email = await User.verifyActivationToken(token);
+      assert.equal(email, user.email, 'email was properly extracted');
+    });
+  });
+
+  describe('issuePasswordResetToken()', () => {
+    it('should return a JWT claiming the user may reset password', () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issuePasswordResetToken();
+      const decoded = jwt.verify(token, SECURE_KEY);
+      assert.equal(decoded.sub, 'test@test.com');
+      assert.isTrue(decoded.passwordReset);
+    });
+  });
+
+  describe('issuePasswordResetToken() should issue tokens that work with verifyPasswordResetToken()', () => {
+    it('should should produce valid password reset tokens', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = await user.issuePasswordResetToken();
+      const email = await User.verifyPasswordResetToken(token);
       assert.equal(email, user.email, 'email was properly extracted');
     });
   });
@@ -295,6 +329,39 @@ describe ('Unit: Model: User', () => {
     });
     it('should return null if no token is passed', async () => {
       const email = User.verifyActivationToken();
+      assert.isUndefined(email, 'no email returned');
+    });
+  });
+
+  describe('static verifyPasswordResetToken()', () => {
+    it('should return the email from the token if the password reset claim is valid', async () => {
+      const validToken = jwt.sign({
+        passwordReset: true
+      }, SECURE_KEY, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyPasswordResetToken(validToken);
+      assert.equal(email, 'test@test.com', 'email returned');
+    });
+    it('should return null if passwordReset is false', async () => {
+      const token = jwt.sign({
+        passwordReset: false
+      }, SECURE_KEY, {
+        algorithm: 'HS512',
+        expiresIn: '10s',
+        subject: 'test@test.com'
+      });
+      const email = User.verifyPasswordResetToken(token);
+      assert.isUndefined(email, 'no email returned');
+    });
+    it('should return null if token is invalid', async () => {
+      const email = User.verifyPasswordResetToken('invalid token');
+      assert.isUndefined(email, 'no email returned');
+    });
+    it('should return null if no token is passed', async () => {
+      const email = User.verifyPasswordResetToken();
       assert.isUndefined(email, 'no email returned');
     });
   });

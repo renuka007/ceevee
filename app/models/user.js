@@ -6,7 +6,8 @@ import {
   SALT_WORK_FACTOR,
   SECURE_KEY,
   JWT_LOGIN_EXPIRES_IN,
-  JWT_ACTIVATION_EXPIRES_IN } from '../../config/config';
+  JWT_ACTIVATION_EXPIRES_IN,
+  JWT_PASSWORD_RESET_EXPIRES_IN } from '../../config/config';
 
 /**
  * Class representing a user model.  This class is compiled into the Mongoose
@@ -52,6 +53,20 @@ class UserModel {
   };
 
   /**
+   * Creates a token with the given payload and expiration for this user.
+   * @param {object} payload - the payload asserting a claim
+   * @param {string} expiresIn - time from _now_ when token expires in zeit/ms
+   * @returns {string|undefined} a JWT asserting the payload claim for this user
+   */
+  issueToken(payload, expiresIn) {
+    return jwt.sign(payload, SECURE_KEY, {
+      algorithm: 'HS512',
+      expiresIn: expiresIn,
+      subject: this.email
+    });
+  };
+
+  /**
    * Creates an authentication claim JWT for this user if the passed password is
    * a match according to `comparePassword()`.
    * @param {string} password - a plaintext password to check
@@ -60,29 +75,27 @@ class UserModel {
    */
   async issueAuthenticationToken(password) {
     if (await this.comparePassword(password)) {
-      return jwt.sign({
-        authenticated: true
-      }, SECURE_KEY, {
-        algorithm: 'HS512',
-        expiresIn: JWT_LOGIN_EXPIRES_IN,
-        subject: this.email
-      });
+      return this.issueToken({authenticated: true}, JWT_LOGIN_EXPIRES_IN);
     }
   };
 
   /**
    * Creates an activation claim JWT for this user.
    * @returns {string|undefined} a JWT asserting the activation claim of
-   *  this user; undefined if password is wrong
+   *  this user
    */
   issueActivationToken() {
-    return jwt.sign({
-      activate: true
-    }, SECURE_KEY, {
-      algorithm: 'HS512',
-      expiresIn: JWT_ACTIVATION_EXPIRES_IN,
-      subject: this.email
-    });
+    return this.issueToken({activate: true}, JWT_ACTIVATION_EXPIRES_IN);
+  };
+
+  /**
+   * Creates a password reset claim JWT for this user.
+   * @returns {string|undefined} a JWT asserting the password reset claim of
+   *  this user
+   */
+  issuePasswordResetToken() {
+    return this.issueToken({passwordReset: true},
+      JWT_PASSWORD_RESET_EXPIRES_IN);
   };
 
   // =class methods
@@ -146,7 +159,7 @@ class UserModel {
   /**
    * Returns the email from the token, if the claim is valid.
    * @param {string} jwtToken - a token claiming authenticated user
-   * @return {string|null}
+   * @return {string|undefined}
    */
   static verifyAuthenticationToken(jwtToken) {
     const decoded = this.verifyToken(jwtToken);
@@ -156,11 +169,21 @@ class UserModel {
   /**
    * Returns the email from the token, if the claim is valid.
    * @param {string} jwtToken - a token claiming a user may activate
-   * @return {string|null}
+   * @return {string|undefined}
    */
   static verifyActivationToken(jwtToken) {
     const decoded = this.verifyToken(jwtToken);
     if (decoded.activate) return decoded.sub;
+  };
+
+  /**
+   * Returns the email from the token, if the claim is valid.
+   * @param {string} jwtToken - a token claiming a user may reset password
+   * @return {string|undefined}
+   */
+  static verifyPasswordResetToken(jwtToken) {
+    const decoded = this.verifyToken(jwtToken);
+    if (decoded.passwordReset) return decoded.sub;
   };
 
   /**
@@ -196,6 +219,23 @@ class UserModel {
    */
   static async findOneActiveByEmail(email) {
     return await this.findOne({email, active: true});
+  };
+
+  /**
+   * Returns an active user.
+   * @param {string} email - a user email
+   * @return {UserModel|null}
+   */
+  static async findOneAndResetPassword(jwtToken, password) {
+    const email = this.verifyPasswordResetToken(jwtToken);
+    const user = await this.findOne({email});
+    if (user) {
+      user.set({password});
+      await user.save();
+      await user.activate();
+      return user;
+    }
+    return null;
   };
 }
 

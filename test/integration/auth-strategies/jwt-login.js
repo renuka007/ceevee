@@ -122,18 +122,20 @@ describe ('Integration: Auth Strategy: JWT Login', () => {
         })
         .authenticate();
     });
-    it('should return UnauthorizedError if user is inactive', async () => {
+    it('should return UnauthorizedError if user is inactive', (done) => {
       user.set({active: false});
-      await user.save();
-      assert.isFalse(user.active);
-      await chai.passport.use(jwtLoginAuthStrategy)
-        .error(function (err) {
-          assert.instanceOf(err, UnauthorizedError);
-        })
-        .req(function (req) {
-          req.headers.authorization = bearerAuthHeader;
-        })
-        .authenticate();
+      user.save(() => {
+        assert.isFalse(user.active);
+        chai.passport.use(jwtLoginAuthStrategy)
+          .error(function (err) {
+            assert.instanceOf(err, UnauthorizedError);
+            done()
+          })
+          .req(function (req) {
+            req.headers.authorization = bearerAuthHeader;
+          })
+          .authenticate();
+      });
     });
   });
 

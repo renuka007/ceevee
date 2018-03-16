@@ -193,4 +193,56 @@ describe ('Integration: Model: User', () => {
     });
   });
 
+  describe('findOneAndResetPassword()', () => {
+    it('should return a matching user, activate, and change password', async () => {
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234'
+      });
+      assert.isFalse(user.active, 'user should be inactive');
+      assert.ok(await user.comparePassword('test1234'));
+      const token = user.issuePasswordResetToken();
+      const foundUser =
+        await User.findOneAndResetPassword(token, 'newpassword0987');
+      assert.isTrue(foundUser.active, 'user should be active');
+      assert.ok(await foundUser.comparePassword('newpassword0987'), 'password should be changed');
+      assert.equal(foundUser.email, user.email, 'user was found');
+    });
+    it('should raise validation error if password is invalid', async () => {
+      let err;
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234'
+      });
+      assert.isFalse(user.active, 'user should be inactive');
+      assert.ok(await user.comparePassword('test1234'));
+      const token = user.issuePasswordResetToken();
+      try {
+        await User.findOneAndResetPassword(token, 'short');
+      } catch (e) {
+        err = e;
+      }
+      const foundUser = await User.findOne({email: user.email});
+      assert.isFalse(foundUser.active, 'user should still be inactive');
+      assert.notOk(await foundUser.comparePassword('short'), 'password should not be changed');
+      assert.equal(err.name, 'ValidationError', 'user does not validate');
+    });
+    it('should return null if no matching user is found', async () => {
+      const user = await User.create({
+        email: 'test@test.com',
+        password: 'test1234'
+      });
+      const unsavedUser = new User({email: 'nosuch@email.com'});
+      const token = unsavedUser.issuePasswordResetToken();
+      const foundUser =
+        await User.findOneAndResetPassword(token, 'newpassword0987');
+      assert.isNull(foundUser);
+    });
+    it('should return null if no email or password are passed', async () => {
+      const user = await User.create(userData);
+      const foundUser = await User.findOneAndResetPassword();
+      assert.isNull(foundUser);
+    });
+  });
+
 });

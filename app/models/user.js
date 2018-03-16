@@ -53,6 +53,20 @@ class UserModel {
   };
 
   /**
+   * Creates a token with the given payload and expiration for this user.
+   * @param {object} payload - the payload asserting a claim
+   * @param {string} expiresIn - time from _now_ when token expires in zeit/ms
+   * @returns {string|undefined} a JWT asserting the payload claim for this user
+   */
+  issueToken(payload, expiresIn) {
+    return jwt.sign(payload, SECURE_KEY, {
+      algorithm: 'HS512',
+      expiresIn: expiresIn,
+      subject: this.email
+    });
+  };
+
+  /**
    * Creates an authentication claim JWT for this user if the passed password is
    * a match according to `comparePassword()`.
    * @param {string} password - a plaintext password to check
@@ -61,13 +75,7 @@ class UserModel {
    */
   async issueAuthenticationToken(password) {
     if (await this.comparePassword(password)) {
-      return jwt.sign({
-        authenticated: true
-      }, SECURE_KEY, {
-        algorithm: 'HS512',
-        expiresIn: JWT_LOGIN_EXPIRES_IN,
-        subject: this.email
-      });
+      return this.issueToken({authenticated: true}, JWT_LOGIN_EXPIRES_IN);
     }
   };
 
@@ -77,13 +85,7 @@ class UserModel {
    *  this user
    */
   issueActivationToken() {
-    return jwt.sign({
-      activate: true
-    }, SECURE_KEY, {
-      algorithm: 'HS512',
-      expiresIn: JWT_ACTIVATION_EXPIRES_IN,
-      subject: this.email
-    });
+    return this.issueToken({activate: true}, JWT_ACTIVATION_EXPIRES_IN);
   };
 
   /**
@@ -92,13 +94,8 @@ class UserModel {
    *  this user
    */
   issuePasswordResetToken() {
-    return jwt.sign({
-      passwordReset: true
-    }, SECURE_KEY, {
-      algorithm: 'HS512',
-      expiresIn: JWT_PASSWORD_RESET_EXPIRES_IN,
-      subject: this.email
-    });
+    return this.issueToken({passwordReset: true},
+      JWT_PASSWORD_RESET_EXPIRES_IN);
   };
 
   // =class methods

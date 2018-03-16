@@ -96,6 +96,21 @@ describe ('Unit: Model: User', () => {
     });
   });
 
+  describe('issueToken()', () => {
+    it('should return a JWT claiming the payload for the user, with the given expiration, signed with SECURE_KEY', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueToken({foo: 'bar'}, '10s');
+      const decoded = jwt.verify(token, SECURE_KEY);
+      assert.equal(decoded.foo, 'bar');
+      assert.equal(decoded.sub, user.email);
+    });
+    it('should return a JWT that respects the specified expiresIn', async () => {
+      const user = new User({email: 'test@test.com'});
+      const token = user.issueToken({foo: 'bar'}, '-1d');
+      assert.throws(() => jwt.verify(token, SECURE_KEY));
+    });
+  });
+
   describe('issueAuthenticationToken()', () => {
     it('should return a JWT claiming the user is authenticated if password is a match', async () => {
       const user = new User({email: 'test@test.com', password: 'test1234'});

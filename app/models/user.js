@@ -223,6 +223,23 @@ class UserModel {
   static async findOneActiveByEmail(email) {
     return await this.findOne({email, active: true});
   };
+
+  /**
+   * Returns an active user.
+   * @param {string} email - a user email
+   * @return {UserModel|null}
+   */
+  static async findOneAndResetPassword(jwtToken, password) {
+    const email = this.verifyPasswordResetToken(jwtToken);
+    const user = await this.findOne({email});
+    if (user) {
+      user.set({password});
+      await user.save();
+      await user.activate();
+      return user;
+    }
+    return null;
+  };
 }
 
 UserSchema.loadClass(UserModel);

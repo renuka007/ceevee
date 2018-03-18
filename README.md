@@ -45,9 +45,15 @@ npm run test:local
 ```
 
 
-## Run Locally
+## Running
 
-A [SendGrid][sendgrid] API key is required to run
+A [SendGrid][sendgrid] API key is required to run the server (but not required
+for tests).  An easy way to procure a free SendGrid account for development
+is via the [Heroku SendGrid add-on][heroku-sendgrid].  Once procured, find the
+API key and paste it into your local `.env` file after `SENDGRID_API_KEY=`.
+
+
+## Run Locally
 
 Run a local instance of the API server:
 
@@ -84,6 +90,7 @@ are used when a variable is not set.
 [node]: https://nodejs.org
 [mongodb]: https://www.mongodb.com
 [sendgrid]: https://sendgrid.com
+[heroku-sendgrid]: https://elements.heroku.com/addons/sendgrid
 [bcrypt]: https://www.npmjs.com/package/bcrypt
 [zxcvbn]: https://github.com/dropbox/zxcvbn
 [zeit/ms]: https://github.com/zeit/ms

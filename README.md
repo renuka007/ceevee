@@ -49,11 +49,12 @@ npm run test:local
 
 A [SendGrid][sendgrid] API key is required to run the server (but not required
 for tests).  An easy way to procure a free SendGrid account for development
-is via the [Heroku SendGrid add-on][heroku-sendgrid].  Once procured, find the
-API key and paste it into your local `.env` file after `SENDGRID_API_KEY=`.
+is via the [Heroku SendGrid add-on][heroku-sendgrid].  You'll need to create a
+new app in Heroku before procuring SendGrid.  Once procured, find the API key
+and paste it into your local `.env` file after `SENDGRID_API_KEY=`.
 
 
-## Run Locally
+## Running Locally
 
 Run a local instance of the API server:
 

@@ -29,7 +29,7 @@ describe ('Unit: Email: Password Reset', () => {
     });
   });
 
-  describe('sendUserActivationEmail()', () => {
+  describe('sendPasswordResetEmail()', () => {
     it('should send email via `sgMail.send()`', async () => {
       const user = new User({email: 'test@test.com'});
       sinon.assert.notCalled(sgMail.send);

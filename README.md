@@ -69,7 +69,7 @@ The following environment variables are used by the application.  Default values
 are used when a variable is not set.
 
 | Variable | Default | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | `PORT` | | port number on which API server should listen |
 | `MONGODB_URI` | | URL of the MongoDB instance to which to connect |
 | `SENDGRID_API_KEY` | | API key of the [SendGrid][sendgrid] account for email |

@@ -159,7 +159,7 @@ a core team member may merge the PR into `develop`.
 
 Commit messages and pull requests should
 [short link to GitHub issues][issue-autolinking] when referencing information in
-the issue.  Though not every commit or PR related for an issue needs to
+the issue; though not every commit or PR related to an issue needs to
 reference it.  Commits and PRs that fix or resolve an issue should
 [close the issue in the message][issue-closing].
 

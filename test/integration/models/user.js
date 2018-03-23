@@ -19,6 +19,17 @@ describe ('Integration: Model: User', () => {
     await DatabaseHelper.disconnect();
   });
 
+  describe('defaults', () => {
+    it('should include a created_at date', async () => {
+      const user = await User.create(userData);
+      assert.instanceOf(user.created_at, Date, 'created_at is an Date');
+    });
+    it('should include a updated_at date', async () => {
+      const user = await User.create(userData);
+      assert.instanceOf(user.updated_at, Date, 'updated_at is an Date');
+    });
+  });
+
   describe('email uniqueness', () => {
     it('should allow users with distinct email addresses', async () => {
       const user1 = await User.create(userData);

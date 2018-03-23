@@ -8,10 +8,6 @@ import { SECURE_KEY } from '../../../config/config'
 describe ('Unit: Model: User', () => {
 
   describe('defaults', () => {
-    it('should include a created_on date', () => {
-      const user = new User();
-      assert.instanceOf(user.created_on, Date, 'created_on is an Date');
-    });
     it('should include an active boolean defaulting to false', () => {
       const user = new User();
       assert.isFalse(user.active, 'active is false');

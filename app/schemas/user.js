@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import timestamp from 'mongoose-timestamp';
 import zxcvbn from 'zxcvbn';
 import { MIN_ZXCVBN_PASSWORD_STRENGTH } from '../../config/config'
 
@@ -6,11 +7,6 @@ import { MIN_ZXCVBN_PASSWORD_STRENGTH } from '../../config/config'
  * A UserSchema for Mongoose.
  */
 const UserSchema = new Schema({
-  created_on: {
-    type: Date,
-    required: true,
-    default: Date.now
-  },
   active: {
     type: Boolean,
     default: false
@@ -34,5 +30,10 @@ UserSchema.path('password').validate(function (value) {
   const strength = zxcvbn(value, userInputs);
   return strength.score >= MIN_ZXCVBN_PASSWORD_STRENGTH;
 }, 'Password is too weak.  Try a longer plain-language phrase.', 'strength');
+
+UserSchema.plugin(timestamp,  {
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
+});
 
 export default UserSchema;

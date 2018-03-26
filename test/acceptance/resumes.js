@@ -73,4 +73,25 @@ describe('Acceptance: Route: /resumes', () => {
     });
   });
 
+  describe('POST', () => {
+    it('should create a resume for the logged in user [201]', async () => {
+      assert.equal(await Resume.count(), 3);
+      await supertest(server)
+        .post('/resumes')
+        .set('Authorization', bearerAuthHeader1)
+        .send({resume: {objective: 'foobar'}})
+        .expect(201);
+      assert.equal(await Resume.count(), 4);
+    });
+    it('should disallow creation of resume with missing objective [422]', async () => {
+      assert.equal(await Resume.count(), 3);
+      await supertest(server)
+        .post('/resumes')
+        .set('Authorization', bearerAuthHeader1)
+        .send({resume: {}})
+        .expect(422);
+      assert.equal(await Resume.count(), 3);
+    });
+  });
+
 });

@@ -11,7 +11,7 @@ const resumesGetRoute = async (req, res, next) => {
 };
 
 /**
- * Looks up resumes associated with the logged-in user.
+ * Creates a resume for the logged-in user.
  */
 const resumesPostRoute = async (req, res, next) => {
   const resume = await Resume.create({

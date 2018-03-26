@@ -13,7 +13,10 @@ import asyncRoute from './route-helpers/async-route';
 
 import { passwordResetRequestPostRoute } from './routes/password-reset'
 import { usersPostRoute } from './routes/users'
-import { resumesGetRoute, resumesPostRoute } from './routes/resumes'
+import {
+  resumesGetRoute,
+  resumesPostRoute,
+  resumeGetRoute } from './routes/resumes'
 
 import { SERVER_NAME } from '../config/config'
 
@@ -67,5 +70,9 @@ server.get('/resumes',
 server.post('/resumes',
   passport.authenticate('jwt-login', {session: false}),
   asyncRoute(resumesPostRoute));
+// /resume/:id
+server.get('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumeGetRoute));
 
 export default server;

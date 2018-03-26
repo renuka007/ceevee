@@ -1,3 +1,5 @@
+import { NotFoundError } from 'restify-errors';
+
 import Resume from '../models/resume';
 
 /**
@@ -23,4 +25,18 @@ const resumesPostRoute = async (req, res, next) => {
   });
 };
 
-export { resumesGetRoute, resumesPostRoute };
+/**
+ * Looks up a resume by ID for the logged-in user.
+ */
+const resumeGetRoute = async (req, res, next) => {
+  const resume = await Resume.findOne({
+    _id: req.params.id,
+    user: req.user
+  });
+  if (!resume) throw new NotFoundError();
+  res.json(200, {
+    resume: resume
+  });
+};
+
+export { resumesGetRoute, resumesPostRoute, resumeGetRoute };

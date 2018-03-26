@@ -24,7 +24,7 @@ let resume1;
 let resume2;
 let resume3;
 
-describe('Acceptance: Route: /resumes', () => {
+describe('Acceptance: Routes: Resume', () => {
 
   beforeEach(async () => {
     await DatabaseHelper.connect();
@@ -48,50 +48,93 @@ describe('Acceptance: Route: /resumes', () => {
     await DatabaseHelper.disconnect();
   });
 
-  describe('GET', () => {
-    it('should return resumes for logged in user [200]', async () => {
-      // user1 has 1 resume
-      await supertest(server)
-        .get('/resumes')
-        .set('Authorization', bearerAuthHeader1)
-        .send()
-        .expect(200)
-        .expect((res) => {
-          const expectedJSON = JSON.parse(JSON.stringify(resume1));
-          assert.equal(res.body.resumes.length, 1);
-          assert.deepEqual(res.body.resumes[0], expectedJSON);
-        });
-      // user2 has 2 resumes
-      await supertest(server)
-        .get('/resumes')
-        .set('Authorization', bearerAuthHeader2)
-        .send()
-        .expect(200)
-        .expect((res) => {
-          assert.equal(res.body.resumes.length, 2);
-        });
+  describe('Acceptance: Route: /resumes', () => {
+
+    describe('GET', () => {
+      it('should return resumes for logged in user [200]', async () => {
+        // user1 has 1 resume
+        await supertest(server)
+          .get('/resumes')
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(200)
+          .expect((res) => {
+            const expectedJSON = JSON.parse(JSON.stringify(resume1));
+            assert.equal(res.body.resumes.length, 1);
+            assert.deepEqual(res.body.resumes[0], expectedJSON);
+          });
+        // user2 has 2 resumes
+        await supertest(server)
+          .get('/resumes')
+          .set('Authorization', bearerAuthHeader2)
+          .send()
+          .expect(200)
+          .expect((res) => {
+            assert.equal(res.body.resumes.length, 2);
+          });
+      });
     });
+
+    describe('POST', () => {
+      it('should create a resume for the logged in user [201]', async () => {
+        assert.equal(await Resume.count(), 3);
+        await supertest(server)
+          .post('/resumes')
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {objective: 'foobar'}})
+          .expect(201);
+        assert.equal(await Resume.count(), 4);
+      });
+      it('should disallow creation of resume with missing objective [422]', async () => {
+        assert.equal(await Resume.count(), 3);
+        await supertest(server)
+          .post('/resumes')
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {}})
+          .expect(422);
+        assert.equal(await Resume.count(), 3);
+      });
+    });
+
   });
 
-  describe('POST', () => {
-    it('should create a resume for the logged in user [201]', async () => {
-      assert.equal(await Resume.count(), 3);
-      await supertest(server)
-        .post('/resumes')
-        .set('Authorization', bearerAuthHeader1)
-        .send({resume: {objective: 'foobar'}})
-        .expect(201);
-      assert.equal(await Resume.count(), 4);
+  describe('Acceptance: Route: /resume/:id', () => {
+
+    describe('GET', () => {
+      it('should return resume by ID for the logged in user [200]', async () => {
+        await supertest(server)
+          .get(`/resume/${resume1.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(200)
+          .expect((res) => {
+            const expectedJSON = JSON.parse(JSON.stringify(resume1));
+            assert.deepEqual(res.body.resume, expectedJSON);
+          });
+      });
+      it('should fail when attempting to access another user\'s resume [404]', async () => {
+        await supertest(server)
+          .get(`/resume/${resume2.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(404);
+      });
+      it('should fail when resume does not exist [404]', async () => {
+        await supertest(server)
+          .get(`/resume/1aa1111a1a1aa1111aaa11aa`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(404);
+      });
+      it('should fail on malformed ID [422]', async () => {
+        await supertest(server)
+          .get(`/resume/not-a-real-id`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(422);
+      });
     });
-    it('should disallow creation of resume with missing objective [422]', async () => {
-      assert.equal(await Resume.count(), 3);
-      await supertest(server)
-        .post('/resumes')
-        .set('Authorization', bearerAuthHeader1)
-        .send({resume: {}})
-        .expect(422);
-      assert.equal(await Resume.count(), 3);
-    });
+
   });
 
 });

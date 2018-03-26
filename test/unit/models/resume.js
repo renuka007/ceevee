@@ -35,4 +35,28 @@ describe ('Unit: Model: Resume', () => {
     });
   });
 
+  describe('toJSON()', () => {
+    it('should return correct JSON', () => {
+      const resume = new Resume({user: user, objective: 'Get a job'});
+      const json = resume.toJSON();
+      const expectedJSON = {
+        id: resume._id,
+        user: resume.user._id,
+        updated_at: resume.updated_at,
+        created_at: resume.created_at
+      };
+      assert.deepEqual(json, expectedJSON);
+    });
+    it('should include user ID if user is populated', () => {
+      const resume = new Resume({user: user, objective: 'Get a job'});
+      const json = resume.toJSON();
+      assert.equal(json.user, resume.user._id);
+    });
+    it('should include user ID if user is unpopulated', () => {
+      const resume = new Resume({user: user._id, objective: 'truth'});
+      const json = resume.toJSON();
+      assert.equal(json.user, resume.user);
+    });
+  });
+
 });

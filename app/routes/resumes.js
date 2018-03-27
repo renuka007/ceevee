@@ -39,4 +39,23 @@ const resumeGetRoute = async (req, res, next) => {
   });
 };
 
-export { resumesGetRoute, resumesPostRoute, resumeGetRoute };
+/**
+ * Updates a resume by ID for the logged-in user.
+ */
+const resumePutRoute = async (req, res, next) => {
+  const resume = await Resume.findOne({
+    _id: req.params.id,
+    user: req.user
+  });
+  if (!resume) throw new NotFoundError();
+  resume.set({objective: req.body.resume.objective});
+  await resume.save();
+  res.json(200, {resume});
+};
+
+export {
+  resumesGetRoute,
+  resumesPostRoute,
+  resumeGetRoute,
+  resumePutRoute
+};

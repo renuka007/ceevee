@@ -135,6 +135,42 @@ describe('Acceptance: Routes: Resume', () => {
       });
     });
 
+    describe('PUT', () => {
+      it('should update resume by ID for the logged in user [200]', async () => {
+        const newObjective = 'Another objective';
+        assert.notEqual(resume1.objective, newObjective);
+        await supertest(server)
+          .put(`/resume/${resume1.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {objective: newObjective}})
+          .expect(200)
+          .expect((res) => {
+            assert.equal(res.body.resume.objective, newObjective);
+          });
+      });
+      it('should fail when attempting to update another user\'s resume [404]', async () => {
+        await supertest(server)
+          .put(`/resume/${resume2.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {objective: 'foobar'}})
+          .expect(404);
+      });
+      it('should fail when resume does not exist [404]', async () => {
+        await supertest(server)
+          .put(`/resume/1aa1111a1a1aa1111aaa11aa`)
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {objective: 'foobar'}})
+          .expect(404);
+      });
+      it('should fail on malformed ID [422]', async () => {
+        await supertest(server)
+          .put(`/resume/not-a-real-id`)
+          .set('Authorization', bearerAuthHeader1)
+          .send({resume: {objective: 'foobar'}})
+          .expect(422);
+      });
+    });
+
   });
 
 });

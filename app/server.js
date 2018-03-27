@@ -16,7 +16,8 @@ import { usersPostRoute } from './routes/users'
 import {
   resumesGetRoute,
   resumesPostRoute,
-  resumeGetRoute } from './routes/resumes'
+  resumeGetRoute,
+  resumePutRoute } from './routes/resumes'
 
 import { SERVER_NAME } from '../config/config'
 
@@ -74,5 +75,8 @@ server.post('/resumes',
 server.get('/resume/:id',
   passport.authenticate('jwt-login', {session: false}),
   asyncRoute(resumeGetRoute));
+server.put('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumePutRoute));
 
 export default server;

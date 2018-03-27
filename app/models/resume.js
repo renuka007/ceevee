@@ -20,6 +20,7 @@ class ResumeModel {
     return {
       id: this._id,
       user: userID,
+      objective: this.objective,
       updated_at: this.updated_at,
       created_at: this.created_at
     }

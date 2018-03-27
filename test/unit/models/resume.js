@@ -42,6 +42,7 @@ describe ('Unit: Model: Resume', () => {
       const expectedJSON = {
         id: resume._id,
         user: resume.user._id,
+        objective: resume.objective,
         updated_at: resume.updated_at,
         created_at: resume.created_at
       };

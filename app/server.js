@@ -17,7 +17,8 @@ import {
   resumesGetRoute,
   resumesPostRoute,
   resumeGetRoute,
-  resumePutRoute } from './routes/resumes'
+  resumePutRoute,
+  resumeDeleteRoute } from './routes/resumes'
 
 import { SERVER_NAME } from '../config/config'
 
@@ -78,5 +79,8 @@ server.get('/resume/:id',
 server.put('/resume/:id',
   passport.authenticate('jwt-login', {session: false}),
   asyncRoute(resumePutRoute));
+server.del('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumeDeleteRoute));
 
 export default server;

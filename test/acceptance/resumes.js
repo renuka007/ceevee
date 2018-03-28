@@ -171,6 +171,39 @@ describe('Acceptance: Routes: Resume', () => {
       });
     });
 
+    describe('DELETE', () => {
+      it('should delete resume by ID for the logged in user [200]', async () => {
+        const resumeCount = await Resume.count();
+        await supertest(server)
+          .del(`/resume/${resume1.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(204);
+        assert.equal(await Resume.count(), resumeCount - 1);
+      });
+      it('should fail when attempting to delete another user\'s resume [404]', async () => {
+        await supertest(server)
+          .del(`/resume/${resume2.id}`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(404);
+      });
+      it('should fail when resume does not exist [404]', async () => {
+        await supertest(server)
+          .del(`/resume/1aa1111a1a1aa1111aaa11aa`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(404);
+      });
+      it('should fail on malformed ID [422]', async () => {
+        await supertest(server)
+          .del(`/resume/not-a-real-id`)
+          .set('Authorization', bearerAuthHeader1)
+          .send()
+          .expect(422);
+      });
+    });
+
   });
 
 });

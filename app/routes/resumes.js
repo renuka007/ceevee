@@ -53,9 +53,22 @@ const resumePutRoute = async (req, res, next) => {
   res.json(200, {resume});
 };
 
+/**
+ * Deletes a resume by ID for the logged-in user.
+ */
+const resumeDeleteRoute = async (req, res, next) => {
+  const resume = await Resume.findOneAndRemove({
+    _id: req.params.id,
+    user: req.user
+  });
+  if (!resume) throw new NotFoundError();
+  res.send(204);
+};
+
 export {
   resumesGetRoute,
   resumesPostRoute,
   resumeGetRoute,
-  resumePutRoute
+  resumePutRoute,
+  resumeDeleteRoute
 };

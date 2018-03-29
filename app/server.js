@@ -11,8 +11,15 @@ import restifyErrorHandler from './route-helpers/restify-error-handler';
 import staticResponse from './route-helpers/static-response';
 import asyncRoute from './route-helpers/async-route';
 
-import { usersPostRoute } from './routes/users'
 import { passwordResetRequestPostRoute } from './routes/password-reset'
+import { usersPostRoute } from './routes/users'
+import {
+  resumesGetRoute,
+  resumesPostRoute,
+  resumeGetRoute,
+  resumePutRoute,
+  resumeDeleteRoute } from './routes/resumes'
+
 import { SERVER_NAME } from '../config/config'
 
 
@@ -35,9 +42,6 @@ server.on('restifyError', restifyErrorHandler);
 
 // Routes
 
-// /users
-server.post('/users', asyncRoute(usersPostRoute));
-
 // /auth/activate
 server.put('/auth/activate',
   passport.authenticate('jwt-activation', {session: false}),
@@ -57,5 +61,26 @@ server.get('/auth/login',
 server.get('/auth/ping',
   passport.authenticate('jwt-login', {session: false}),
   staticResponse({authenticated: true}));
+
+// /users
+server.post('/users', asyncRoute(usersPostRoute));
+
+// /resumes
+server.get('/resumes',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumesGetRoute));
+server.post('/resumes',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumesPostRoute));
+// /resume/:id
+server.get('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumeGetRoute));
+server.put('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumePutRoute));
+server.del('/resume/:id',
+  passport.authenticate('jwt-login', {session: false}),
+  asyncRoute(resumeDeleteRoute));
 
 export default server;
